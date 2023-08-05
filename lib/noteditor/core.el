@@ -19,9 +19,14 @@
 
 (defun noteditor/initialize ()
   "Initialize the Noteditor."
-  (message "Welcome!")
-  )
+  (require 'pkg/core)
+  (pkg/initialize)
 
+  (when (file-exists-p user-init-file)
+    (load user-init-file)))
+
+(defvar noteditor-home (getenv "NOTEDITOR_HOME")
+  "The pass to fg42-home.")
 
 (provide 'noteditor/core)
 ;;; core.el ends here
