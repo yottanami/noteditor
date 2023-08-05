@@ -1,4 +1,5 @@
-;;; Noteditor --- Based on FG42 -*- lexical-binding: t; -*-
+p;;; Noteditor --- Based on FG42 -*- lexical-binding: t; -*-
+;;
 ;;
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -15,18 +16,20 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;;; Commentary:
+;;
+;;
 ;;; Code:
 
-(defun noteditor/initialize ()
-  "Initialize the Noteditor."
-  (require 'pkg/core)
-  (pkg/initialize)
 
-  (when (file-exists-p user-init-file)
-    (load user-init-file)))
+(require 'pkg)
+(require 'noteditor/plugin)
 
-(defvar noteditor-home (getenv "NOTEDITOR_HOME")
-  "The pass to fg42-home.")
+(defcube noteditor/editor-plugin
+  "This is a meta cube that sets up the basic functionalities of an Editor"
+  :title "Editor plugin"
+  :no-flag t
+)
 
-(provide 'noteditor/core)
-;;; core.el ends here
+
+(provide 'plugins/editor)
+;;; editor.el ends here
