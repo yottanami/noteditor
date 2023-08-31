@@ -19,32 +19,31 @@
 ;;
 ;;
 ;;; Code:
-
-(require 'noteditor/flags)
+(require 'lib/pkg/core)
 
 (defun wm-randr ()
   "RandR support for wm."
-  (when-wm
    (require 'exwm-randr)
    (setq exwm-randr-workspace-output-plist '(0 "HDMI-1"
-                                             1 "HDMI-1"
-                                             2 "HDMI-1"
-                                             3 "HDMI-1"
-                                             4 "HDMI-1"
-                                             5 "HDMI-1"
-                                             6 "eDP-1"
-                                             7 "HDMI-1"
-                                             8 "HDMI-1"
-                                             9 "HDMI-1"))
+                                               1 "HDMI-1"
+                                               2 "HDMI-1"
+                                               3 "HDMI-1"
+                                               4 "HDMI-1"
+                                               5 "HDMI-1"
+                                               6 "eDP-1"
+                                               7 "HDMI-1"
+                                               8 "HDMI-1"
+                                               9 "HDMI-1"))
    (add-hook 'exwm-randr-screen-change-hook
              (lambda ()
                (start-process-shell-command
-                "xrandr" nil "xrandr --output HDMI-1 --above eDP-1 --mode 1920x1080")))
-   (exwm-randr-enable)))
+                "xrandr" nil "xrandr --output eDP-1 --scale 0.5x0.5 --primary --output HDMI-1 --scale 1x1 --above eDP-1 --mode 1920x1080")))
+   (exwm-randr-enable))
 
 
-(defun noteditor/initialize-wm ()
+(defun wm/initialize ()
   "Initilize EXWM window manager with the given PARAMS."
+  (pkg/use exwm)
   (interactive)
 
   (require 'exwm)
@@ -154,7 +153,6 @@
   ;; (with-flag nlinum
   ;;            (add-hook 'exwm-mode-hook 'disable-nlinum))
   )
-
 
 (provide 'plugins/wm/core)
 ;;; core.el ends here

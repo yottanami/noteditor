@@ -20,6 +20,7 @@
 ;;
 ;;; Code:
 
+(require 'core/utils)
 (defvar bootstrap-version 5)
 
 (defcustom pkg-package-directory (concat noteditor-home "/.pkg")
@@ -27,8 +28,7 @@
   :group 'pkg
   :type 'string)
 
-
-(defun pkg/install-and-load-use-package ()
+(defun fpkg/install-and-load-use-package ()
   "Install and load the use-package in compile time."
   ;; TODO Enable use-package on compile time
   ;;(eval-when-compile)
@@ -36,9 +36,7 @@
   (setq use-package-always-ensure t)
   (require 'use-package))
 
-
-
-(defun pkg/initialize()
+(defun pkg/initialize ()
   "Initialize PKG."
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
@@ -46,13 +44,23 @@
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
           (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
            'silent 'inhibit-cookies)
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage)
-    (pkg/install-and-load-use-package)))
+    (fpkg/install-and-load-use-package)))
 
 
-(provide 'pkg/core)
+(defmacro pkg/use (pkg &rest details)
+  "Install the given package DETAILS PKG via use-package and straight."
+  (declare (indent defun))
+
+  (if (and (listp details) (< 0 (length details)))
+      (let ((params (inject-straight (inject-defer details))))
+          (progn
+            `(use-package ,pkg ,@params)))
+    `(use-package ,pkg :straight t :defer t)))
+
+(provide 'lib/pkg/core)
 ;;; core.el ends here
