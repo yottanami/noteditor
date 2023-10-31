@@ -18,8 +18,6 @@
 ;;; Code:
 (setq debug-on-error t)
 
-;; Prevent package.el to install anything at startup
-(setq package-enable-at-startup nil)
 
 (defvar noteditor-home (getenv "NOTEDITOR_HOME")
   "The pass to noteditor-home.")
@@ -29,15 +27,7 @@
 ;;(setq custom-file (format "%s/.noteditor.custom.el" (getenv "HOME")))
 (setq user-emacs-directory "~/.noteditor/emacs.d")
 
-;; (setq user-init-file
-;;       (format "%s/noteditor-user.el"
-;;               (getenv "NOTEDITOR_HOME")))
-
 (setq user-init-file "noteditor-user.el")
-;; Load the customization file. In NOTEDITOR it is different than
-;; the default `user-init-file'
-;; (when (file-exists-p custom-file)
-;;   (load custom-file))
 
 (when (file-exists-p user-init-file)
   (load user-init-file))
@@ -50,10 +40,12 @@
 
 (let ((wm-mode (getenv "NOTEDITOR_WM")))
   (when (string= wm-mode "true")
-    (message "WM Mode Loaded")
     (load-plugin "wm")
     )
   )
+(load-plugin "theme")
+(load-plugin "org")
 
 (provide 'noteditor)
 ;;; noteditor-config.el ends here
+

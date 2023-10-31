@@ -24,7 +24,7 @@
  ;; (require 'plugins/editor)
 ;; (require 'core/utils)
 
-(message "Default user file loaded ...")
+;; (message "Default user file loaded ...")
 ;; (use-flags
 ;;  (wm))
 

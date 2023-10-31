@@ -21,16 +21,11 @@
 ;;; Code:
 (require 'lib/pkg/core)
 
-(defun wm/initialize ()
-  "Initilize EXWM window manager with the given PARAMS."
-  (pkg/use exwm)
-  (interactive)
-  (message "WM plugin loaded")
-  (require 'exwm)
-  (require 'exwm-config)
-  (require 'exwm-systemtray)
-  (exwm-config-default)
+(defun org/initialize ()
+  "Initilize Noteditor theme plugin"
+  (pkg/use org-roam)
+
 )
 
-(provide 'plugins/wm/core)
+(provide 'plugins/org/core)
 ;;; core.el ends here

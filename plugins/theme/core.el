@@ -21,16 +21,12 @@
 ;;; Code:
 (require 'lib/pkg/core)
 
-(defun wm/initialize ()
-  "Initilize EXWM window manager with the given PARAMS."
-  (pkg/use exwm)
-  (interactive)
-  (message "WM plugin loaded")
-  (require 'exwm)
-  (require 'exwm-config)
-  (require 'exwm-systemtray)
-  (exwm-config-default)
+(defun theme/initialize ()
+  "Initilize Noteditor theme plugin"
+  (pkg/use dracula-theme)
+  (load-theme 'dracula t)
+  (set-face-attribute 'default nil :height 120)
 )
 
-(provide 'plugins/wm/core)
+(provide 'plugins/theme/core)
 ;;; core.el ends here
