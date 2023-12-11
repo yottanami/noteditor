@@ -29,8 +29,28 @@
   (require 'exwm)
   (require 'exwm-config)
   (require 'exwm-systemtray)
+  (require 'exwm-randr)
   (exwm-config-default)
-)
+  (wm/exwm-change-screen-hook)
+  (exwm-randr-enable)
+  )
+
+(defun wm/exwm-change-screen-hook ()
+  (let ((xrandr-output-regexp "\n\\([^ ]+\\) connected ")
+        default-output)
+    (with-temp-buffer
+      (call-process "xrandr" nil t nil)
+      (goto-char (point-min))
+      (re-search-forward xrandr-output-regexp nil 'noerror)
+      (setq default-output (match-string 1))
+      (forward-line)
+      (if (not (re-search-forward xrandr-output-regexp nil 'noerror))
+          (call-process "xrandr" nil nil nil "--output" default-output "--scale" "0.5x0.5")
+        (call-process
+         "xrandr" nil nil nil
+	 "--output" default-output "--scale" "0.5x0.5"
+         "--output" (match-string 1) "--primary" "--above" default-output)
+        (setq exwm-randr-workspace-output-plist (list 6 default-output))))))
 
 (provide 'plugins/wm/core)
 ;;; core.el ends here

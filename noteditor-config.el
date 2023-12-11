@@ -48,4 +48,3 @@
 
 (provide 'noteditor)
 ;;; noteditor-config.el ends here
-
