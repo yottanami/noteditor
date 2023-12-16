@@ -16,5 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 export NOTEDITOR_HOME=$(cd "$(dirname "$0")/." >/dev/null 2>&1 ; pwd -P)
-
-LIBRARY_PATH=$(cc -print-file-name=libgccjit.so):$LIBRARY_PATH NOTEDITOR_WM=true ${EMACS_PATH:-emacs} -l /home/yottanami/src/personal/noteditor/noteditor-config.el "$@"
+LIBRARY_PATH=$(cc -print-file-name=libgccjit.so):$LIBRARY_PATH NOTEDITOR_WM=true ${EMACS_PATH:-emacs} --name Noteditor --no-site-file --no-site-lisp --no-splash --title Noteditor -l /home/yottanami/src/personal/noteditor/noteditor-config.el "$@"

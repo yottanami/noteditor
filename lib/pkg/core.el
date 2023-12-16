@@ -51,7 +51,18 @@
     (load bootstrap-file nil 'nomessage)
     (fpkg/install-and-load-use-package)))
 
+(defun inject-straight (args)
+  "Inject `:straight t' to ARGS it the key was missing."
+  (if (member :straight args)
+      args
+    (append args '(:straight t))))
 
+
+(defun inject-defer (args)
+  "Inject `:defer t' to ARGS it the key was missing."
+  (if (member :defer args)
+      args
+    (append args '(:defer t))))
 (defmacro pkg/use (pkg &rest details)
   "Install the given package DETAILS PKG via use-package and straight."
   (declare (indent defun))

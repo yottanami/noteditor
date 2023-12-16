@@ -39,10 +39,11 @@
 
 
 (let ((wm-mode (getenv "NOTEDITOR_WM")))
-  (when (string= wm-mode "true")
+  (if (string= wm-mode "true")
     (load-plugin "wm")
-    )
+    (load-plugin "editor")
   )
+)
 (load-plugin "theme")
 (load-plugin "org")
 
