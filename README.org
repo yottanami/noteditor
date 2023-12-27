@@ -1,2 +1,19 @@
 * Noteditor
-Based on FG42!
+*Noteditor* is a simplified version of *FG42* which is a framework to create an editor and a window manager based on *GNU/Emacs*.
+
+** Requirements
+*Emacs >= 27.1*
+*texinfo*
+*fd*
+*ag*
+
+** Install from source
+#+BEGIN_SRC bash
+# Install emacs, make and texinfo
+# clone the noteditor repository.
+$ git clone git@github.com:yottanami/noteditor.git ~/.noteditor/
+# You can clone it where ever your want
+$ cd ~/.noteditor/
+$ make install
+$ noteditor
+#+END_SRC

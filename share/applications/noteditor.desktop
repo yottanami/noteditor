@@ -1,0 +1,15 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=NOTEDITOR
+GenericName=NOTEDITOR
+Comment=It is noteditor
+MimeType=text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-java;application/x-shellscript;text/x-c;text/x-c++;text/x-ruby;text/x-python;text/x-clojure;text/css;text/html;text/x-javascript;
+Type=Application
+Terminal=false
+Categories=Development;TextEditor;
+StartupWMClass=NOTEDITOR
+Exec=/home/yottanami/src/personal/noteditor/noteditor-wm
+Icon=noteditor
+Version=0.1
+X-LightDM-DesktopName=NOTEDITOR
+DesktopNames=NOTEDITOR
