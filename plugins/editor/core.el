@@ -24,44 +24,44 @@
 (defun editor/initialize ()
   "Initilize Noteditor editor plugin."
 
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
   (pkg/use projectile
-           :init
-           (projectile-mode +1)
-           :config
-           (progn
-             ;; We don't want the auto discovery on startup
-             (setq projectile-auto-discover nil)
-             (setq projectile-enable-caching t)
-             (setq projectile-project-search-path "~/src/"))
-           :bind (:map projectile-mode-map
-		       ("s-p" . projectile-command-map)
-		       ("C-c p" . projectile-command-map)))
+    :init
+    (projectile-mode +1)
+    :config
+    (progn
+      ;; We don't want the auto discovery on startup
+      (setq projectile-auto-discover nil)
+      (setq projectile-enable-caching t)
+      (setq projectile-project-search-path "~/src/"))
+    :bind (:map projectile-mode-map
+		("s-p" . projectile-command-map)
+		("C-c p" . projectile-command-map)))
 
   (pkg/use projectile-ripgrep
-           :after projectile)
+    :after projectile)
 
   (pkg/use helm-ag
-           :after projectile)
+    :after projectile)
 
   (pkg/use smart-mode-line
-           :straight (smart-mode-line :source melpa)
-           :defer nil
-           :init
-           (progn
-             (setq sml/theme 'respectful)
-             (setq sml/no-confirm-load-theme t)
-             (sml/setup)))
+    :straight (smart-mode-line :source melpa)
+    :defer nil
+    :init
+    (progn
+      (setq sml/theme 'respectful)
+      (setq sml/no-confirm-load-theme t)
+      (sml/setup)))
 
   (pkg/use discover)
 
 
   ;; (pkg/use rainbow-delimiters
   ;;          :hook (prog-mode . rainbow-delimiters-mode))
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-  (pkg/use rainbow-delimiters)
+  ;;  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
+  (pkg/use rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
 
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
@@ -84,33 +84,33 @@
 
   ;; Jump to the things
   (pkg/use avy
-           :bind ("M-1" . avy-goto-word-1))
+    :bind ("M-1" . avy-goto-word-1))
 
   (pkg/use ace-window
-           :bind ("C-<tab>" . ace-window))
+    :bind ("C-<tab>" . ace-window))
 
   (pkg/use ctrlf
-           :defer t
-           :init
-           (ctrlf-mode +1))
+    :defer t
+    :init
+    (ctrlf-mode +1))
 
   (pkg/use treemacs)
 
   (pkg/use treemacs-projectile
-           :after (treemacs projectile))
+    :after (treemacs projectile))
 
   (pkg/use lsp-mode
-           :commands lsp
-           :init
-           (setq lsp-headerline-breadcrumb-enable nil))
+    :commands lsp
+    :init
+    (setq lsp-headerline-breadcrumb-enable nil))
 
   (pkg/use lsp-ui
-           :init
-           (progn
-             (setq lsp-ui-doc-enable t
-                   lsp-ui-doc-show-with-cursor t))
-           :config
-           (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+    :init
+    (progn
+      (setq lsp-ui-doc-enable t
+            lsp-ui-doc-show-with-cursor t))
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
   (pkg/use helm-lsp :commands helm-lsp-workspace-symbol)
 
@@ -119,31 +119,47 @@
 
   ;; optional if you want which-key integration
   (pkg/use which-key
-           :config
-           (which-key-mode))
+    :config
+    (which-key-mode))
 
   (pkg/use company
-           :bind (:map company-active-map
-                       ("M-n" . company-select-next)
-                       ("M-p" . company-select-previous)
-                       ("TAB" . company-complete-common-or-cycle)
-                       ("M-d" . company-show-doc-buffer))
-           :config
-           (progn
-             ;; Use Company for completion
-             (bind-key [remap completion-at-point] #'company-complete company-mode-map)
-             (setq company-show-numbers t)
-             (setq company-idle-delay 0)
-             (setq company-tooltip-limit 20)
-             (setq company-echo-delay 0)
-             (setq company-tooltip-align-annotations t)
-             (setq company-dabbrev-downcase nil)
-             (global-company-mode)))
+    :bind (:map company-active-map
+                ("M-n" . company-select-next)
+                ("M-p" . company-select-previous)
+                ("TAB" . company-complete-common-or-cycle)
+		("<tab>" . company-complete-common-or-cycle)
+                ("M-d" . company-show-doc-buffer))
+    :config
+    (progn
+      ;; Use Company for completion
+      (bind-key [remap completion-at-point] #'company-complete company-mode-map)
+      (setq company-show-numbers t)
+      (setq company-idle-delay 0)
+      (setq company-tooltip-limit 20)
+      (setq company-echo-delay 0)
+      (setq company-tooltip-align-annotations t)
+      (setq company-dabbrev-downcase nil)
+      (global-company-mode)))
 
   (pkg/use company-box
-           :after company
-           :config
-           (add-hook 'company-mode-hook 'company-box-mode)))
+    :after company
+    :config
+    (add-hook 'company-mode-hook 'company-box-mode))
+
+
+  (pkg/use copilot
+    :hook (prog-mode . copilot-mode)
+    :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+
+    :bind (("M-TAB" . 'copilot-accept-completion-by-word)
+	   ("M-<tab>" . 'copilot-accept-completion-by-word)
+	   ("s-<tab>" . 'copilot-accept-completion)
+	   ("s-TAB" . 'copilot-accept-completion)
+	   ("s-n" . 'copilot-next-completion)
+	   ("s-p" . 'copilot-previous-completion))
+    :ensure t
+    )
+  )
 
 (provide 'plugins/editor/core)
 ;;; core.el ends here

@@ -1,0 +1,2 @@
+* split editor plugin and progmode
+** Active progmode plugin only using `prog-mode-hook`
