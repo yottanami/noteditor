@@ -33,13 +33,16 @@
       ;; We don't want the auto discovery on startup
       (setq projectile-auto-discover nil)
       (setq projectile-enable-caching t)
-      (setq projectile-project-search-path "~/src/"))
+      (setq projectile-project-search-path "~/src/")
+      )
     :bind (:map projectile-mode-map
 		("s-p" . projectile-command-map)
 		("C-c p" . projectile-command-map)))
 
   (pkg/use projectile-ripgrep
     :after projectile)
+
+  (pkg/use haml-mode)
 
   (pkg/use helm-ag
     :after projectile)
@@ -148,7 +151,6 @@
 
 
   (pkg/use copilot
-    :hook (prog-mode . copilot-mode)
     :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
 
     :bind (("M-TAB" . 'copilot-accept-completion-by-word)
@@ -159,6 +161,19 @@
 	   ("s-p" . 'copilot-previous-completion))
     :ensure t
     )
+
+  
+  ;;   :hook (prog-mode . copilot-mode)  
+  ;;   :hook (yaml-mode . copilot-mode)
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  (add-hook 'yaml-mode-hook 'copilot-mode)
+  (add-hook 'web-mode-hook 'copilot-mode)
+
+  (pkg/use yaml-mode)
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+
+  (pkg/use yasnippet)
+  
   )
 
 (provide 'plugins/editor/core)
