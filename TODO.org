@@ -1,2 +1,8 @@
+* Smart path completion
+* yaml without yaml-mode?
+* find end of block
+* start lsp on yml files
+* Install lsp servers
 * split editor plugin and progmode
+* do not let tab in yamls
 ** Active progmode plugin only using `prog-mode-hook`
