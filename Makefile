@@ -6,11 +6,11 @@ update:
 
 .PHONY: install
 install:
-	/bin/sh $(my_dir)/scripts/install_files.sh runners
+	/bin/bash $(my_dir)scripts/install_files.sh runners
 	@echo " "
 	@echo "------------------------------------------------------------------------------------"
 	@echo "Make sure to install external dependencies. For more info checkout README.org"
 
 .PHONY: install-extras
 install-extras:
-	/bin/sh $(my_dir)/scripts/install_files.sh extras
+	/bin/bash $(my_dir)/scripts/install_files.sh extras
