@@ -27,7 +27,6 @@
 
 (defun load-plugin(name)
   "Load the plugin by the NAME."
-  (message "load plugin")
   (require (intern (format "plugins/%s/core" name)))
   (funcall (intern (format "%s/initialize" name)))
   )

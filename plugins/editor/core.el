@@ -22,7 +22,7 @@
 (require 'lib/pkg/core)
 
 (defun editor/initialize ()
-  "Initilize Noteditor editor plugin."
+  ;; "Initilize Noteditor editor plugin."
 
 
   (pkg/use projectile
@@ -87,7 +87,7 @@
 
   ;; Jump to the things
   (pkg/use avy
-    :bind ("M-1" . avy-goto-word-1))
+    :bind ("s-j" . avy-goto-word-1))
 
   (pkg/use ace-window
     :bind ("C-<tab>" . ace-window))
@@ -161,10 +161,6 @@
 	   ("s-p" . 'copilot-previous-completion))
     :ensure t
     )
-
-  
-  ;;   :hook (prog-mode . copilot-mode)  
-  ;;   :hook (yaml-mode . copilot-mode)
   (add-hook 'prog-mode-hook 'copilot-mode)
   (add-hook 'yaml-mode-hook 'copilot-mode)
   (add-hook 'web-mode-hook 'copilot-mode)

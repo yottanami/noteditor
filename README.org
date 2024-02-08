@@ -1,11 +1,14 @@
 * Noteditor
-*Noteditor* is a simplified version of *FG42* which is a framework to create an editor and a window manager based on *GNU/Emacs*.
+*Noteditor* is an open-source, all-in-one window manager and text editor designed to streamline your development experience.
+Powered by *Emacs* and on the foundation of *FG42*, and *EXWM*.
 
 ** Requirements
-*Emacs >= 27.1*
-*texinfo*
-*fd*
-*ag*
+- Emacs >= 27.1
+- texinfo
+- fd
+- silversearcher-ag
+- nodejs
+
 
 ** Install from source
 #+BEGIN_SRC bash
@@ -17,3 +20,36 @@ $ cd ~/.noteditor/
 $ make install
 $ noteditor
 #+END_SRC
+
+** Configuration
+*** Environment variables
+
+| `NOTEDITOR_HOME`         | Pathname of Noteditor |
+| `NOTEDITOR_LOCK`         | Screen lock           |
+| `NOTEDITOR_SCREENSHOT`   | Screenshot app        |
+| `NOTEDITOR_MEDIA_PLAYER` | Media player          |
+| `NOTEDITOR_BROWSER`      | Browser               |
+| `NOTEDITOR_TERMINAL`     | Terminal              |
+                                                
+** Keybindings
+*** Fast dial keybindings
+| `s-d` | Launch applications |
+| `s-x` | Terminal            |
+| `s-l` | Screen lock         |
+| `s-s` | Screenshot app      |
+| `s-m` | Media player        |
+| `s-b` | Browser             |
+
+
+*** Other keybindings
+| `s-t` |  tab-bar-mode  |
+
+** Plugins
+*** wm
+  Window manager based on EXWM
+*** editor
+  Anything that is needed to write code!
+*** theme
+  Fonts, colors and more
+*** org
+  org-mode, org-roam and other related modes
