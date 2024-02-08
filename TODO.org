@@ -1,3 +1,4 @@
+* sync clipboard
 * Smart path completion
 * yaml without yaml-mode?
 * find end of block
