@@ -1,4 +1,5 @@
 * Noteditor
+[[./share/images/screenshot.png]]
 *Noteditor* is an open-source, all-in-one window manager and text editor designed to streamline your development experience.
 Powered by *Emacs* and on the foundation of *FG42*, and *EXWM*.
 
