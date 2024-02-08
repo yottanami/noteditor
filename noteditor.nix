@@ -27,6 +27,6 @@ in
         /home/yottanami/src/noteditor/noteditor-wm
       '';
     };
-    environment.systemPackages = [ pkgs.emacs pkgs.fd pkgs.ag];
+    environment.systemPackages = [ pkgs.emacs pkgs.fd pkgs.silver-searcher pkgs.nodejs];
   };
 }
