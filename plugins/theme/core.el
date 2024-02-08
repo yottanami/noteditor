@@ -26,6 +26,16 @@
   (pkg/use dracula-theme)
   (load-theme 'dracula t)
   (set-face-attribute 'default nil :height 120)
+  (theme/welcome-message)
+  )
+
+(defun theme/welcome-message ()
+  (add-hook 'emacs-startup-hook 'my-startup-fcn)
+(defun my-startup-fcn ()
+  (let ((my-buffer (get-buffer-create "my-buffer")))
+    (with-current-buffer my-buffer
+      (insert "Welcome to Noteditor\nFor more information visit https://github.com/yottanami/noteditor"))
+    (switch-to-buffer my-buffer)))
 )
 
 (provide 'plugins/theme/core)
