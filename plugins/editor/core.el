@@ -151,7 +151,7 @@
 
 
   (pkg/use copilot
-    :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
 
     :bind (("M-TAB" . 'copilot-accept-completion-by-word)
 	   ("M-<tab>" . 'copilot-accept-completion-by-word)
