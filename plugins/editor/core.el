@@ -44,6 +44,10 @@
 
   (pkg/use haml-mode)
 
+  (pkg/use typescript-mode)
+  (pkg/use svelte-mode)
+
+  (pkg/use ag)
   (pkg/use helm-ag
     :after projectile)
 
