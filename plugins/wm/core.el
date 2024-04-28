@@ -44,10 +44,10 @@
       (setq default-output (match-string 1))
       (forward-line)
       (if (not (re-search-forward xrandr-output-regexp nil 'noerror))
-          (call-process "xrandr" nil nil nil "--output" default-output "--scale" "0.5x0.5")
+          (call-process "xrandr" nil nil nil "--output" default-output );;"--scale" "0.5x0.5")
         (call-process
          "xrandr" nil nil nil
-	 "--output" default-output "--scale" "0.5x0.5"
+	 "--output" default-output ;;"--scale" "0.5x0.5"
          "--output" (match-string 1) "--primary" "--above" default-output)
         (setq exwm-randr-workspace-output-plist (list 6 default-output))))))
 
