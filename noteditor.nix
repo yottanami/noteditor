@@ -24,7 +24,7 @@ in
       name = "noteditor";
       bgSupport = true;
       start = ''
-        /home/yottanami/src/noteditor/noteditor-wm
+        /home/yottanami/src/personal/noteditor/noteditor-wm
       '';
     };
     environment.systemPackages = [ pkgs.emacs pkgs.fd pkgs.silver-searcher pkgs.nodejs];
