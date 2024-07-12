@@ -49,7 +49,8 @@
          "xrandr" nil nil nil
 	 "--output" default-output ;;"--scale" "0.5x0.5"
          "--output" (match-string 1) "--primary" "--above" default-output)
-        (setq exwm-randr-workspace-output-plist (list 6 default-output))))))
+        (setq exwm-randr-workspace-monitor-plist (list 6 default-output)))))
+  )
 
 
  ;; Global keybindings can be defined with `exwm-input-global-keys'.

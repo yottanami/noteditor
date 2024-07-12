@@ -75,8 +75,12 @@ in
     services.xserver.windowManager.session = singleton {
       name = "noteditor";
       bgSupport = true;
-      start = '' ${noteditorPath} '';	
+      start = '' ${noteditorPath}/noteditor-wm '';	
+    };
+    environment.sessionVariables = rec {
+      PATH = [ "${noteditorPath}" ];
     };
     environment.systemPackages = [ pkgs.emacs pkgs.fd pkgs.silver-searcher pkgs.nodejs];
+
   };
 }
