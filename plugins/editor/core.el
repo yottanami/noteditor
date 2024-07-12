@@ -109,20 +109,35 @@
   (pkg/use lsp-mode
     :commands lsp
     :init
-    (setq lsp-headerline-breadcrumb-enable nil))
+    (setq lsp-headerline-breadcrumb-enable nil)
+    (setq lsp-enable-indentation nil)
+    (setq lsp-enable-on-type-formatting nil)
+    )
 
   (pkg/use lsp-ui
     :init
     (progn
       (setq lsp-ui-doc-enable t
-            lsp-ui-doc-show-with-cursor t))
+            lsp-ui-doc-show-with-cursor t)
+      )
     :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    )
 
   (pkg/use helm-lsp :commands helm-lsp-workspace-symbol)
 
   ;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
   (pkg/use lsp-treemacs :commands lsp-treemacs-errors-list)
+
+  (pkg/use lsp-java)
+  (add-hook 'java-mode-hook #'lsp)
+
+  (pkg/use dap-mode :after lsp-mode :config (dap-auto-configure-mode))
+  (require 'dap-java)
+
+  (pkg/use hydra)
+
+  (pkg/use edbi)
 
   ;; optional if you want which-key integration
   (pkg/use which-key
