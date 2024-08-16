@@ -45,6 +45,20 @@
   (pkg/use haml-mode)
 
   (pkg/use typescript-mode)
+
+    ;; JavaScript indentation
+  (add-hook 'js-mode-hook
+            (lambda ()
+              (setq js-indent-level 2)
+              (setq indent-tabs-mode nil)))
+
+  ;; TypeScript indentation
+  (add-hook 'typescript-mode-hook
+            (lambda ()
+              (setq typescript-indent-level 2)
+              (setq indent-tabs-mode nil)))
+
+  
   (pkg/use svelte-mode)
 
   (pkg/use ag)
@@ -106,13 +120,25 @@
   (pkg/use treemacs-projectile
     :after (treemacs projectile))
 
+  (pkg/use nix-mode
+    :mode "\\.nix\\'")
+
+  ;; Add nix-mode to the lsp-mode hook
+  (add-hook 'nix-mode-hook #'lsp)
+  
   (pkg/use lsp-mode
     :commands lsp
     :init
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-enable-indentation nil)
     (setq lsp-enable-on-type-formatting nil)
-    )
+    :config
+      (setq lsp-keymap-prefix "C-c l") ;; Use "C-c l" as the prefix for lsp commands      
+      (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
+      (lsp-register-client
+       (make-lsp-client :new-connection (lsp-stdio-connection '("nixd"))
+			:major-modes '(nix-mode)
+			:server-id 'nixd)))
 
   (pkg/use lsp-ui
     :init
@@ -139,7 +165,6 @@
 
   (pkg/use edbi)
 
-  ;; optional if you want which-key integration
   (pkg/use which-key
     :config
     (which-key-mode))
