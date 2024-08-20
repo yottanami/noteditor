@@ -209,6 +209,17 @@
   (add-hook 'yaml-mode-hook 'copilot-mode)
   (add-hook 'web-mode-hook 'copilot-mode)
 
+  (use-package shell-maker
+    :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
+  
+(use-package copilot-chat
+  :straight (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
+  :custom
+  (copilot-chat-frontend 'shell-maker)
+  :config
+  (require 'copilot-chat-shell-maker)
+  (push '(shell-maker . copilot-chat-shell-maker-init) copilot-chat-frontend-list))
+
   (pkg/use yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 
