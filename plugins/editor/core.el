@@ -24,7 +24,6 @@
 (defun editor/initialize ()
   ;; "Initilize Noteditor editor plugin."
 
-
   (pkg/use projectile
     :init
     (projectile-mode +1)
@@ -58,7 +57,6 @@
               (setq typescript-indent-level 2)
               (setq indent-tabs-mode nil)))
 
-  
   (pkg/use svelte-mode)
 
   (pkg/use ag)
@@ -76,11 +74,6 @@
 
   (pkg/use discover)
 
-
-  ;; (pkg/use rainbow-delimiters
-  ;;          :hook (prog-mode . rainbow-delimiters-mode))
-  ;;  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
   (pkg/use rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
@@ -96,9 +89,6 @@
   ;; scratch should be scratch
   (setq initial-scratch-message nil)
   ;; Don't allow tab as indent
-
-  ;; Yank the region on type
-  (delete-selection-mode 1)
 
   ;; Yank the region on type
   (delete-selection-mode 1)
@@ -125,7 +115,8 @@
 
   ;; Add nix-mode to the lsp-mode hook
   (add-hook 'nix-mode-hook #'lsp)
-  
+
+  ;; LSP and DAP Mode Configuration
   (pkg/use lsp-mode
     :commands lsp
     :init
@@ -133,34 +124,38 @@
     (setq lsp-enable-indentation nil)
     (setq lsp-enable-on-type-formatting nil)
     :config
-      (setq lsp-keymap-prefix "C-c l") ;; Use "C-c l" as the prefix for lsp commands      
-      (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
-      (lsp-register-client
-       (make-lsp-client :new-connection (lsp-stdio-connection '("nixd"))
-			:major-modes '(nix-mode)
-			:server-id 'nixd)))
+    (setq lsp-keymap-prefix "C-c l") ;; Use "C-c l" as the prefix for lsp commands      
+    (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection '("nixd"))
+                      :major-modes '(nix-mode)
+                      :server-id 'nixd)))
 
   (pkg/use lsp-ui
     :init
     (progn
       (setq lsp-ui-doc-enable t
-            lsp-ui-doc-show-with-cursor t)
-      )
+            lsp-ui-doc-show-with-cursor t))
     :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-    )
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
   (pkg/use helm-lsp :commands helm-lsp-workspace-symbol)
 
-  ;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
   (pkg/use lsp-treemacs :commands lsp-treemacs-errors-list)
 
+  ;; Java Support
   (pkg/use lsp-java)
   (add-hook 'java-mode-hook #'lsp)
 
-  (pkg/use dap-mode :after lsp-mode :config (dap-auto-configure-mode))
-  (require 'dap-java)
+  ;; DAP Mode for Debugging
+  (pkg/use dap-mode
+    :after lsp-mode
+    :config
+    (dap-auto-configure-mode)
+    (require 'dap-python)  ;; Enable DAP mode for Python
+    (require 'dap-java))   ;; Enable DAP mode for Java
 
+  ;; Optional: Hydra for easier control
   (pkg/use hydra)
 
   (pkg/use edbi)
@@ -193,18 +188,16 @@
     :config
     (add-hook 'company-mode-hook 'company-box-mode))
 
-
   (pkg/use copilot
     :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
-
     :bind (("M-TAB" . 'copilot-accept-completion-by-word)
 	   ("M-<tab>" . 'copilot-accept-completion-by-word)
 	   ("s-<tab>" . 'copilot-accept-completion)
 	   ("s-TAB" . 'copilot-accept-completion)
 	   ("s-n" . 'copilot-next-completion)
 	   ("s-p" . 'copilot-previous-completion))
-    :ensure t
-    )
+    :ensure t)
+  
   (add-hook 'prog-mode-hook 'copilot-mode)
   (add-hook 'yaml-mode-hook 'copilot-mode)
   (add-hook 'web-mode-hook 'copilot-mode)
@@ -212,20 +205,20 @@
   (use-package shell-maker
     :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
   
-(use-package copilot-chat
-  :straight (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
-  :custom
-  (copilot-chat-frontend 'shell-maker)
-  :config
-  (require 'copilot-chat-shell-maker)
-  (push '(shell-maker . copilot-chat-shell-maker-init) copilot-chat-frontend-list))
+  (use-package copilot-chat
+    :straight (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
+    :custom
+    (copilot-chat-frontend 'shell-maker)
+    :config
+    (require 'copilot-chat-shell-maker)
+    (push '(shell-maker . copilot-chat-shell-maker-init) copilot-chat-frontend-list))
 
   (pkg/use yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 
   (pkg/use yasnippet)
   
-  )
+)
 
 (provide 'plugins/editor/core)
 ;;; core.el ends here
