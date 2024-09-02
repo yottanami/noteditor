@@ -152,7 +152,11 @@
     :after lsp-mode
     :config
     (dap-auto-configure-mode)
-    (require 'dap-python)  ;; Enable DAP mode for Python
+    (require 'dap-python)
+    (setq dap-python-executable "python3")
+    ;; Set default debug template
+    (setq dap-python-debugger 'debugpy)
+    ;; Enable DAP mode for Python
     (require 'dap-java))   ;; Enable DAP mode for Java
 
   ;; Optional: Hydra for easier control
