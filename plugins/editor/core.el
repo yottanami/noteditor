@@ -221,6 +221,14 @@
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 
   (pkg/use yasnippet)
+
+  (defun kill-all-buffers ()
+  "Kill all buffers. Kill 'Em All!"
+  (interactive)
+  (mapc 'kill-buffer (buffer-list)))
+  ;; Define a keyboard shortcut for the kill-other-buffers function
+  (global-set-key (kbd "C-x C-k") 'kill-all-buffers)
+  
   
 )
 
