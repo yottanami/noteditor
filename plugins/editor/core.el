@@ -22,7 +22,19 @@
 (require 'lib/pkg/core)
 
 (defun editor/initialize ()
-  ;; "Initilize Noteditor editor plugin."
+  "Initilize Noteditor editor plugin."
+
+;;   ensures that Emacs inherits the PATH and other environment variables from your shell.
+  (pkg/use exec-path-from-shell
+    :init
+    (exec-path-from-shell-initialize))
+
+  (ido-mode 1) ;; Better open file completion also for projectile
+  (setq ido-enable-flex-matching t)   ;; Enables fuzzy matching
+  (setq ido-everywhere t)             ;; Use ido for more completion tasks
+  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]"))) ;; Changes the way ido displays the completion list 
+
+  (setq-default explicit-shell-file-name "/run/current-system/sw/bin/fish")
 
   (pkg/use projectile
     :init
@@ -30,8 +42,9 @@
     :config
     (progn
       ;; We don't want the auto discovery on startup
-      (setq projectile-auto-discover nil)
-      (setq projectile-enable-caching t)
+;;      (setq projectile-auto-discover nil)
+      (setq projectile-indexing-method 'native)
+     (setq projectile-enable-caching t)
       (setq projectile-project-search-path "~/src/")
       )
     :bind (:map projectile-mode-map
@@ -44,7 +57,6 @@
   (pkg/use haml-mode)
 
   (pkg/use typescript-mode)
-
     ;; JavaScript indentation
   (add-hook 'js-mode-hook
             (lambda ()
@@ -54,10 +66,20 @@
   ;; TypeScript indentation
   (add-hook 'typescript-mode-hook
             (lambda ()
-              (setq typescript-indent-level 2)
+              (setq typescript-indent-level 4)
               (setq indent-tabs-mode nil)))
+    ;; Enable lsp-mode for TypeScript files
+  (add-hook 'typescript-mode-hook #'lsp)
 
   (pkg/use svelte-mode)
+  ;; Enable lsp-mode for Svelte files
+  (add-hook 'svelte-mode-hook #'lsp)
+
+  (add-hook 'svelte-mode-hook
+          (lambda ()
+            (setq js-indent-level 4)
+            (setq css-indent-offset 4)
+            (setq indent-tabs-mode nil)))
 
   (pkg/use ag)
   (pkg/use helm-ag
