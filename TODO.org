@@ -1,4 +1,4 @@
-* sync clipboard
+*Add Magit *update default open file to use projectile search * Sync clipboard
 * Smart path completion
 * yaml without yaml-mode?
 * find end of block
@@ -7,3 +7,4 @@
 * split editor plugin and progmode
 * do not let tab in yamls
 ** Active progmode plugin only using `prog-mode-hook`
+* Dependencies npm install -g typescript-language-server typescript
