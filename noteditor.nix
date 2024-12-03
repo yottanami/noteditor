@@ -80,7 +80,7 @@ in
     environment.sessionVariables = rec {
       PATH = [ "${noteditorPath}" ];
     };
-    environment.systemPackages = [ pkgs.emacs pkgs.fd pkgs.silver-searcher pkgs.nodejs];
+    environment.systemPackages = [ pkgs.emacs pkgs.fd pkgs.silver-searcher pkgs.nodejs pkgs.dunst pkgs.libnotify];
 
   };
 }

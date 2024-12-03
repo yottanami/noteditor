@@ -25,7 +25,7 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
 
 (defun wm/initialize ()
   "Initialize EXWM window manager."
-  (interactive)
+  (interactive)  
   (pkg/use exwm)
   (require 'exwm)
   (require 'exwm-config)
@@ -40,7 +40,9 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
   ;; Enable system tray
   (exwm-systemtray-enable)
   ;; Set global keybindings
-  (wm/setup-global-keybindings))
+  (wm/setup-global-keybindings)
+  (start-process-shell-command "dunst" nil "dunst")
+  )
 
 ;;; Helper Functions
 
