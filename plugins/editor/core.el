@@ -24,17 +24,27 @@
 (defun editor/initialize ()
   "Initilize Noteditor editor plugin."
 
-;;   ensures that Emacs inherits the PATH and other environment variables from your shell.
+  (ido-mode 1)                        ;; Better open file completion also for projectile
+  (display-line-numbers-mode 1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+  (column-number-mode t)
+  (show-paren-mode t)
+  (electric-pair-mode 1)   
+  (delete-selection-mode 1)           ;; Yank the region on type
+  (setq inhibit-splash-screen t)      ;; Remove splash screen
+  (setq initial-scratch-message nil)  ;; scratch should be scratch
+  (setq ido-enable-flex-matching t)   ;; Enables fuzzy matching
+  (setq ido-everywhere t)             ;; Use ido for more completion tasks
+  ;; Changes the way ido displays the completion list 
+  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+  (setq-default explicit-shell-file-name "/run/current-system/sw/bin/fish")
+  
+  ;; Ensures that Emacs inherits the PATH and other environment variables from your shell.
   (pkg/use exec-path-from-shell
     :init
     (exec-path-from-shell-initialize))
-
-  (ido-mode 1) ;; Better open file completion also for projectile
-  (setq ido-enable-flex-matching t)   ;; Enables fuzzy matching
-  (setq ido-everywhere t)             ;; Use ido for more completion tasks
-  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]"))) ;; Changes the way ido displays the completion list 
-
-  (setq-default explicit-shell-file-name "/run/current-system/sw/bin/fish")
 
   (pkg/use projectile
     :init
@@ -42,9 +52,9 @@
     :config
     (progn
       ;; We don't want the auto discovery on startup
-;;      (setq projectile-auto-discover nil)
+      ;; (setq projectile-auto-discover nil)
       (setq projectile-indexing-method 'native)
-     (setq projectile-enable-caching t)
+      (setq projectile-enable-caching t)
       (setq projectile-project-search-path "~/src/")
       )
     :bind (:map projectile-mode-map
@@ -55,9 +65,9 @@
     :after projectile)
 
   (pkg/use haml-mode)
-
+  
   (pkg/use typescript-mode)
-    ;; JavaScript indentation
+  ;; JavaScript indentation
   (add-hook 'js-mode-hook
             (lambda ()
               (setq js-indent-level 2)
@@ -68,11 +78,11 @@
             (lambda ()
               (setq typescript-indent-level 4)
               (setq indent-tabs-mode nil)))
-    ;; Enable lsp-mode for TypeScript files
+  ;; Enable lsp-mode for TypeScript files
   (add-hook 'typescript-mode-hook #'lsp)
 
-  (pkg/use svelte-mode)
   ;; Enable lsp-mode for Svelte files
+  (pkg/use svelte-mode)
   (add-hook 'svelte-mode-hook #'lsp)
 
   (add-hook 'svelte-mode-hook
@@ -82,6 +92,7 @@
             (setq indent-tabs-mode nil)))
 
   (pkg/use ag)
+  
   (pkg/use helm-ag
     :after projectile)
 
@@ -98,24 +109,6 @@
 
   (pkg/use rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
-
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
-  (column-number-mode t)
-  (show-paren-mode t)
-  (electric-pair-mode 1)
-
-  (display-line-numbers-mode 1)
-
-  ;; Remove splash screen
-  (setq inhibit-splash-screen t)
-  ;; scratch should be scratch
-  (setq initial-scratch-message nil)
-  ;; Don't allow tab as indent
-
-  ;; Yank the region on type
-  (delete-selection-mode 1)
 
   ;; Jump to the things
   (pkg/use avy
@@ -136,7 +129,6 @@
 
   (pkg/use nix-mode
     :mode "\\.nix\\'")
-
   ;; Add nix-mode to the lsp-mode hook
   (add-hook 'nix-mode-hook #'lsp)
 
@@ -215,7 +207,7 @@
     :after company
     :config
     (add-hook 'company-mode-hook 'company-box-mode))
-
+  
   (pkg/use copilot
     :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
     :bind (("M-TAB" . 'copilot-accept-completion-by-word)
@@ -226,6 +218,10 @@
 	   ("s-p" . 'copilot-previous-completion))
     :ensure t)
   
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  (add-hook 'yaml-mode-hook 'copilot-mode)
+  (add-hook 'web-mode-hook 'copilot-mode)
+  
   ; AI Assistant
   (use-package aidermacs
   :bind (("C-c a" . aidermacs-transient-menu))
@@ -235,18 +231,13 @@
 
   (aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
 
-  ;; ✨ FREE architect/reasoning model
-  ;; – pick one of the following lines –
+  ;; FREE architect/reasoning model
   ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide
   ;; (aidermacs-architect-model "deepseek/deepseek-v3-0324:free")
   ;; (aidermacs-architect-model "mistralai/mixtral-8x7b-instruct:free")
 
   ;; Optional: a tiny “weak” model for commit messages & summaries
   (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))  
-  
-  (add-hook 'prog-mode-hook 'copilot-mode)
-  (add-hook 'yaml-mode-hook 'copilot-mode)
-  (add-hook 'web-mode-hook 'copilot-mode)
 
   (use-package shell-maker
     :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
@@ -269,9 +260,7 @@
   (interactive)
   (mapc 'kill-buffer (buffer-list)))
   ;; Define a keyboard shortcut for the kill-other-buffers function
-  (global-set-key (kbd "C-x C-k") 'kill-all-buffers)
-  
-  
+  (global-set-key (kbd "C-x C-k") 'kill-all-buffers)  
 )
 
 (provide 'plugins/editor/core)

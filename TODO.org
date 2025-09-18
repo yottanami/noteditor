@@ -10,3 +10,4 @@
 * Dependencies npm install -g typescript-language-server typescript
 * Add embark
 * Add eat
+* Read projectile-project-search-path from ENV var or config file
