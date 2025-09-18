@@ -106,6 +106,8 @@
   (show-paren-mode t)
   (electric-pair-mode 1)
 
+  (display-line-numbers-mode 1)
+
   ;; Remove splash screen
   (setq inhibit-splash-screen t)
   ;; scratch should be scratch
@@ -223,6 +225,24 @@
 	   ("s-n" . 'copilot-next-completion)
 	   ("s-p" . 'copilot-previous-completion))
     :ensure t)
+  
+  ; AI Assistant
+  (use-package aidermacs
+  :bind (("C-c a" . aidermacs-transient-menu))
+  :custom
+  ;; Default to Architect mode (two‑LLM pipeline)
+  (aidermacs-default-chat-mode 'architect)
+
+  (aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
+
+  ;; ✨ FREE architect/reasoning model
+  ;; – pick one of the following lines –
+  ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide
+  ;; (aidermacs-architect-model "deepseek/deepseek-v3-0324:free")
+  ;; (aidermacs-architect-model "mistralai/mixtral-8x7b-instruct:free")
+
+  ;; Optional: a tiny “weak” model for commit messages & summaries
+  (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))  
   
   (add-hook 'prog-mode-hook 'copilot-mode)
   (add-hook 'yaml-mode-hook 'copilot-mode)
