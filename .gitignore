@@ -33,3 +33,4 @@ emacs.d/
 /build/
 
 **/*/sitemap.inc
+.aider*

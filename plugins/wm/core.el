@@ -41,6 +41,9 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
   (exwm-systemtray-enable)
   ;; Set global keybindings
   (wm/setup-global-keybindings)
+  ;; display-time-mode
+  (display-time-mode 1)
+  (display-battery-mode 1)
   (start-process-shell-command "dunst" nil "dunst")
   )
 
@@ -107,6 +110,7 @@ Assigns workspaces to monitors according to the desired configuration."
 
 (defun wm/update-displays ()
   "Update display configuration based on connected monitors."
+  (sleep-for 2)
   (let* ((outputs (wm/get-connected-outputs))
          (internal-output (car outputs))
          (external-outputs (cdr outputs)))
