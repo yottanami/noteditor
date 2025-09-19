@@ -20,8 +20,9 @@
 ;;
 ;;; Code:
 
-(defvar noteditor-home (getenv "NOTEDITOR_HOME")
-  "The pass to noteditor-home.")
+(defvar noteditor-home
+  (expand-file-name ".." (file-name-directory (or load-file-name buffer-file-name)))
+  "Absolute path to Noteditor's project root.")
 
 (defvar noteditor-tmp (concat noteditor-home "/tmp"))
 

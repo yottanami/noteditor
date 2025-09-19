@@ -37,8 +37,6 @@ install_runners() {
     # chmod +x "$noteditor_home/noteditor"
     # chmod +x "$noteditor_home/noteditor-wm"
 
-#    info "Copying conifg file to ~/.noteditor.el..."
-#    cp "$noteditor_home/config/noteditor.user.el" ~/.noteditor.el
 
     info "Installing the runners..."
 

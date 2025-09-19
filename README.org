@@ -23,15 +23,29 @@ $ noteditor
 #+END_SRC
 
 ** Configuration
-*** Environment variables
+*** User configuration file
+Create ~/.noteditor/config.el and set your preferences. Example:
+#+BEGIN_SRC elisp
+(setq noteditor-mode 'editor)  ;; or 'wm
+(setq noteditor-terminal "alacritty")
+(setq noteditor-browser "brave-browser")
+(setq noteditor-media-player nil)
+(setq noteditor-screen-lock nil)
+(setq noteditor-project-search-path '("~/src/" "~/work/"))
+(setq noteditor-aidermacs-default-model "openrouter/openai/gpt-5")
+(setq noteditor-supported-languages '(nix typescript svelte java python yaml))
+#+END_SRC
 
-| `NOTEDITOR_HOME`         | Pathname of Noteditor |
-| `NOTEDITOR_LOCK`         | Screen lock           |
-| `NOTEDITOR_SCREENSHOT`   | Screenshot app        |
-| `NOTEDITOR_MEDIA_PLAYER` | Media player          |
-| `NOTEDITOR_BROWSER`      | Browser               |
-| `NOTEDITOR_TERMINAL`     | Terminal              |
-                                                
+*** Breaking change
+Environment variable-based configuration is no longer supported. Move your settings to ~/.noteditor/config.el, for example:
+#+BEGIN_SRC elisp
+(setq noteditor-mode 'editor)       ;; or 'wm
+(setq noteditor-terminal "alacritty")
+(setq noteditor-browser "brave-browser")
+(setq noteditor-project-search-path '("~/src/" "~/work/"))
+(setq noteditor-aidermacs-default-model "openrouter/openai/gpt-5")
+#+END_SRC
+
 ** Keybindings
 *** Fast dial keybindings
 | `s-d` | Launch applications |
