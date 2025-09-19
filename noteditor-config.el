@@ -19,31 +19,21 @@
 (setq debug-on-error t)
 
 
-(defvar noteditor-home (getenv "NOTEDITOR_HOME")
-  "The pass to noteditor-home.")
-(add-to-list 'load-path noteditor-home)
+(add-to-list 'load-path (file-name-directory (or load-file-name buffer-file-name)))
 
 
 ;;(setq custom-file (format "%s/.noteditor.custom.el" (getenv "HOME")))
-(setq user-emacs-directory "~/.noteditor/emacs.d")
-
-(setq user-init-file "noteditor-user.el")
-
-(when (file-exists-p user-init-file)
-  (load user-init-file))
 
 (require 'core/utils)
+(require 'core/config)
 
 (require 'lib/pkg/core)
 (pkg/initialize)
 
 
-(let ((wm-mode (getenv "NOTEDITOR_WM")))
-  (if (string= wm-mode "true")
-    (load-plugin "wm")
-    (load-plugin "editor")
-  )
-)
+(cond
+ ((eq noteditor-mode 'wm) (load-plugin "wm"))
+ (t (load-plugin "editor")))
 (load-plugin "theme")
 (load-plugin "org")
 

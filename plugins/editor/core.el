@@ -20,6 +20,7 @@
 ;;
 ;;; Code:
 (require 'lib/pkg/core)
+(require 'core/config)
 
 (defun editor/initialize ()
   "Initilize Noteditor editor plugin."
@@ -41,10 +42,6 @@
   (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
   (setq-default explicit-shell-file-name "/run/current-system/sw/bin/fish")
   
-  ;; Ensures that Emacs inherits the PATH and other environment variables from your shell.
-  (pkg/use exec-path-from-shell
-    :init
-    (exec-path-from-shell-initialize))
 
   (pkg/use projectile
     :init
@@ -55,7 +52,7 @@
       ;; (setq projectile-auto-discover nil)
       (setq projectile-indexing-method 'native)
       (setq projectile-enable-caching t)
-      (setq projectile-project-search-path "~/src/")
+      (setq projectile-project-search-path noteditor-project-search-path)
       )
     :bind (:map projectile-mode-map
 		("s-p" . projectile-command-map)
@@ -228,9 +225,7 @@
   :custom
   ;; Default to Architect mode (two‑LLM pipeline)
   (aidermacs-default-chat-mode 'architect)
-
-  ;;(aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
-  (aidermacs-default-model "openrouter/openai/gpt-5")
+  (aidermacs-default-model noteditor-aidermacs-default-model)
 
   ;; FREE architect/reasoning model
   ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide

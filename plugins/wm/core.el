@@ -14,6 +14,7 @@
 
 (require 'lib/pkg/core)
 (require 'cl-lib)
+(require 'core/config)
 
 ;;; Variables
 
@@ -151,23 +152,28 @@ Assigns workspaces to monitors according to the desired configuration."
           ;; Bind "s-l" to "screen lock"
           ([?\s-l] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/i3lock")))
+                       (when noteditor-screen-lock
+                         (start-process "" nil noteditor-screen-lock))))
           ;; Bind "s-s" to "screenshot".
           ([?\s-s] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/gnome-screenshot")))
+                       (when noteditor-screenshot
+                         (start-process "" nil noteditor-screenshot))))
           ;; Bind "s-m" to "media player".
           ([?\s-m] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/home/yottanami/bin/Plexamp-4.9.5.AppImage")))
+                       (when noteditor-media-player
+                         (start-process "" nil noteditor-media-player))))
           ;; Bind "s-b" to "browser".
           ([?\s-b] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/brave-browser")))
+                       (when noteditor-browser
+                         (start-process "" nil noteditor-browser))))
           ;; Bind "s-x" to "terminal".
           ([?\s-x] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/alacritty")))
+                       (when noteditor-terminal
+                         (start-process "" nil noteditor-terminal))))
           ;; Bind "s-t" to "tab-bar-mode".
           ([?\s-t] . tab-bar-mode)
           )))
