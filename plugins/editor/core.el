@@ -229,7 +229,8 @@
   ;; Default to Architect mode (two‑LLM pipeline)
   (aidermacs-default-chat-mode 'architect)
 
-  (aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
+  ;;(aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
+  (aidermacs-default-model "openrouter/openai/gpt-5")
 
   ;; FREE architect/reasoning model
   ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide
