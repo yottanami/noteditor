@@ -34,3 +34,4 @@ emacs.d/
 
 **/*/sitemap.inc
 .aider*
+.env
