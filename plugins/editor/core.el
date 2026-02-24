@@ -224,21 +224,19 @@
   
   ; AI Assistant
   (use-package aidermacs
-  :bind (("C-c a" . aidermacs-transient-menu))
-  :custom
-  ;; Default to Architect mode (two‑LLM pipeline)
-  (aidermacs-default-chat-mode 'architect)
+    :bind (("C-c a" . aidermacs-transient-menu))
+    :custom
+    (aidermacs-default-chat-mode 'coder)
+    ;;(aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
+    (aidermacs-default-model "openai/gpt-5")    
 
-  ;;(aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
-  (aidermacs-default-model "openrouter/openai/gpt-5")
+    ;; FREE architect/reasoning model
+    ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide
+    ;; (aidermacs-architect-model "deepseek/deepseek-v3-0324:free")
+    ;; (aidermacs-architect-model "mistralai/mixtral-8x7b-instruct:free")
 
-  ;; FREE architect/reasoning model
-  ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide
-  ;; (aidermacs-architect-model "deepseek/deepseek-v3-0324:free")
-  ;; (aidermacs-architect-model "mistralai/mixtral-8x7b-instruct:free")
-
-  ;; Optional: a tiny “weak” model for commit messages & summaries
-  (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))  
+    ;; Optional: a tiny “weak” model for commit messages & summaries
+    (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))  
 
   (use-package shell-maker
     :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
@@ -261,7 +259,67 @@
   (interactive)
   (mapc 'kill-buffer (buffer-list)))
   ;; Define a keyboard shortcut for the kill-other-buffers function
-  (global-set-key (kbd "C-x C-k") 'kill-all-buffers)  
+  (global-set-key (kbd "C-x C-k") 'kill-all-buffers)
+
+(require 'subr-x) ;; for string-trim
+(require 'aidermacs)
+
+(defun aidermacs--project-root-or-default ()
+  "Return a sensible project root: projectile, vc, or `default-directory`."
+  (or (and (fboundp 'projectile-project-root) (projectile-project-root))
+      (and (fboundp 'vc-root-dir) (vc-root-dir))
+      default-directory))
+
+(defun aidermacs-add-files-from-current-buffer (&optional use-region)
+  "Add all files listed (one per line) in the current buffer to Aidermacs.
+If USE-REGION (prefix arg) is non-nil and a region is active,
+use only the region.
+
+Supports absolute and relative paths. Relative paths are resolved
+from the project root when possible. Lines starting with # are ignored."
+  (interactive "P")
+  (let* ((raw (if (and use-region (use-region-p))
+                  (buffer-substring-no-properties (region-beginning)
+                                                 (region-end))
+                (buffer-substring-no-properties (point-min)
+                                                (point-max))))
+         (lines (split-string raw "\n" t))
+         (proj-root (aidermacs--project-root-or-default))
+         added skipped)
+
+    (dolist (ln lines)
+      (let ((s (string-trim ln)))
+        (when (and (not (string-empty-p s))
+                   (not (string-prefix-p "#" s)))
+          (let* ((path (if (file-name-absolute-p s)
+                           (expand-file-name s)
+                         (expand-file-name s proj-root)))
+                 (path (if (string-suffix-p "/" path)
+                           (directory-file-name path)
+                         path)))
+            (if (file-exists-p path)
+                (condition-case err
+                    (progn
+                      ;; IMPORTANT: Use funcall so the interactive prompt is not triggered
+                      (funcall 'aidermacs-add-file path)
+                      (push path added))
+                  (error (message "Error adding %s: %S" path err)))
+              (push path skipped))))))
+
+    ;; Messages
+    (when added
+      (message "Added %d files to Aidermacs." (length added)))
+
+    (when skipped
+      (dolist (p (reverse skipped))
+        (message "⚠️  Skipping missing file: %s" p)))
+
+    (list :added (nreverse added)
+          :skipped (nreverse skipped))))
+
+(global-set-key (kbd "C-c f") 'aidermacs-add-files-from-current-buffer)
+
+
 )
 
 (provide 'plugins/editor/core)
