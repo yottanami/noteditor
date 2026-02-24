@@ -151,23 +151,23 @@ Assigns workspaces to monitors according to the desired configuration."
           ;; Bind "s-l" to "screen lock"
           ([?\s-l] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/i3lock")))
-          ;; Bind "s-s" to "screenshot".
+                       (start-process "" nil "dm-tool lock")))
+          ;; bind "s-s" to "screenshot".
           ([?\s-s] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/gnome-screenshot")))
+                       (start-process "" nil "flameshot gui")))
           ;; Bind "s-m" to "media player".
           ([?\s-m] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/home/yottanami/bin/Plexamp-4.9.5.AppImage")))
+                       (start-process "" nil "spotify")))
           ;; Bind "s-b" to "browser".
           ([?\s-b] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/brave-browser")))
+                       (start-process "" nil "braver")))
           ;; Bind "s-x" to "terminal".
           ([?\s-x] . (lambda ()
                        (interactive)
-                       (start-process "" nil "/usr/bin/alacritty")))
+                       (start-process "" nil "alacritty")))
           ;; Bind "s-t" to "tab-bar-mode".
           ([?\s-t] . tab-bar-mode)
           )))
