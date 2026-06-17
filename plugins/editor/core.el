@@ -130,6 +130,10 @@
   (pkg/use magit
     :bind ("C-x g" . magit-status))
 
+  (pkg/use diff-hl
+    :init
+    (global-diff-hl-mode))
+
   (pkg/use nix-mode
     :mode "\\.nix\\'")
   ;; Add nix-mode to the lsp-mode hook
