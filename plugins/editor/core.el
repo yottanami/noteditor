@@ -127,6 +127,9 @@
   (pkg/use treemacs-projectile
     :after (treemacs projectile))
 
+  (pkg/use magit
+    :bind ("C-x g" . magit-status))
+
   (pkg/use nix-mode
     :mode "\\.nix\\'")
   ;; Add nix-mode to the lsp-mode hook
