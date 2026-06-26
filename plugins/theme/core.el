@@ -25,6 +25,16 @@
   "Initilize Noteditor theme plugin"
   (pkg/use dracula-theme)
   (load-theme 'dracula t)
+  ;; Work around an upstream dracula-theme bug: its spec for
+  ;; `lsp-ui-sideline-current-symbol' writes `:box (:color dracula-fg)' with the
+  ;; unquoted symbol instead of the color string, which Emacs rejects with
+  ;; "Invalid face box" as soon as lsp-ui loads.  Re-set the face with the
+  ;; intended color so lsp/lsp-ui can start.
+  (custom-theme-set-faces
+   'dracula
+   '(lsp-ui-sideline-current-symbol
+     ((t (:foreground "#f8f8f2" :weight ultra-bold
+          :box (:line-width -1 :color "#f8f8f2") :height 0.99)))))
   (set-face-attribute 'default nil :height 120)
   (theme/welcome-message)
   )
