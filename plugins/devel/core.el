@@ -1,0 +1,288 @@
+;;; Noteditor -*- lexical-binding: t; -*-
+;;
+;;
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;
+;;; Commentary:
+;;
+;; Code-development plugin: project management, language modes, LSP/DAP,
+;; version control, completion, AI assistants and snippets.  General text
+;; editing features live in the `editor' plugin.
+;;
+;;; Code:
+(require 'lib/pkg/core)
+
+(defun devel/initialize ()
+  "Initilize Noteditor development plugin."
+
+  (pkg/use projectile
+    :init
+    (projectile-mode +1)
+    :config
+    (progn
+      ;; We don't want the auto discovery on startup
+      ;; (setq projectile-auto-discover nil)
+      (setq projectile-indexing-method 'native)
+      (setq projectile-enable-caching t)
+      (setq projectile-project-search-path "~/src/")
+      )
+    :bind (:map projectile-mode-map
+		("s-p" . projectile-command-map)
+		("C-c p" . projectile-command-map)))
+
+  (pkg/use projectile-ripgrep
+    :after projectile)
+
+  (pkg/use haml-mode)
+
+  (pkg/use typescript-mode)
+  ;; JavaScript indentation
+  (add-hook 'js-mode-hook
+            (lambda ()
+              (setq js-indent-level 2)
+              (setq indent-tabs-mode nil)))
+
+  ;; TypeScript indentation
+  (add-hook 'typescript-mode-hook
+            (lambda ()
+              (setq typescript-indent-level 4)
+              (setq indent-tabs-mode nil)))
+  ;; Enable lsp-mode for TypeScript files
+  (add-hook 'typescript-mode-hook #'lsp)
+
+  ;; Enable lsp-mode for Svelte files
+  (pkg/use svelte-mode)
+  (add-hook 'svelte-mode-hook #'lsp)
+
+  (add-hook 'svelte-mode-hook
+          (lambda ()
+            (setq js-indent-level 4)
+            (setq css-indent-offset 4)
+            (setq indent-tabs-mode nil)))
+
+  ;; Ruby (`ruby-mode'/`ruby-ts-mode' are built in).  Prefer the `ruby-lsp'
+  ;; server; the rubocop and typeprof LSP clients are noisy and fail to start
+  ;; without dedicated project setup, so keep them disabled.
+  (with-eval-after-load 'lsp-mode
+    (add-to-list 'lsp-disabled-clients 'rubocop-ls)
+    (add-to-list 'lsp-disabled-clients 'typeprof-ls))
+  (add-hook 'ruby-mode-hook #'lsp)
+  (add-hook 'ruby-ts-mode-hook #'lsp)
+
+  (pkg/use ag)
+
+  (pkg/use helm-ag
+    :after projectile)
+
+  (pkg/use rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+
+  (pkg/use treemacs-projectile
+    :after (treemacs projectile))
+
+  (pkg/use magit
+    :bind ("C-x g" . magit-status))
+
+  (pkg/use diff-hl
+    :init
+    (global-diff-hl-mode))
+
+  (pkg/use nix-mode
+    :mode "\\.nix\\'")
+  ;; Add nix-mode to the lsp-mode hook
+  (add-hook 'nix-mode-hook #'lsp)
+
+  ;; LSP and DAP Mode Configuration
+  (pkg/use lsp-mode
+    :commands lsp
+    :init
+    ;; `lsp-keymap-prefix' must be set before lsp-mode is loaded.
+    (setq lsp-keymap-prefix "C-c l") ;; Use "C-c l" as the prefix for lsp commands
+    (setq lsp-headerline-breadcrumb-enable nil)
+    (setq lsp-enable-indentation nil)
+    (setq lsp-enable-on-type-formatting nil)
+    :config
+    (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection '("nixd"))
+                      :major-modes '(nix-mode)
+                      :server-id 'nixd)))
+
+  (pkg/use lsp-ui
+    :init
+    (progn
+      (setq lsp-ui-doc-enable t
+            lsp-ui-doc-show-with-cursor t))
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+  (pkg/use helm-lsp :commands helm-lsp-workspace-symbol)
+
+  (pkg/use lsp-treemacs :commands lsp-treemacs-errors-list)
+
+  ;; Java Support
+  (pkg/use lsp-java)
+  (add-hook 'java-mode-hook #'lsp)
+
+  ;; DAP Mode for Debugging
+  (pkg/use dap-mode
+    :after lsp-mode
+    :config
+    (dap-auto-configure-mode)
+    (require 'dap-python)
+    (setq dap-python-executable "python3")
+    ;; Set default debug template
+    (setq dap-python-debugger 'debugpy)
+    ;; Enable DAP mode for Python
+    (require 'dap-java))   ;; Enable DAP mode for Java
+
+  ;; Optional: Hydra for easier control
+  (pkg/use hydra)
+
+  (pkg/use edbi)
+
+  (pkg/use company
+    :bind (:map company-active-map
+                ("M-n" . company-select-next)
+                ("M-p" . company-select-previous)
+                ("TAB" . company-complete-common-or-cycle)
+		("<tab>" . company-complete-common-or-cycle)
+                ("M-d" . company-show-doc-buffer))
+    :config
+    (progn
+      ;; Use Company for completion
+      (bind-key [remap completion-at-point] #'company-complete company-mode-map)
+      (setq company-show-numbers t)
+      (setq company-idle-delay 0)
+      (setq company-tooltip-limit 20)
+      (setq company-echo-delay 0)
+      (setq company-tooltip-align-annotations t)
+      (setq company-dabbrev-downcase nil)
+      (global-company-mode)))
+
+  (pkg/use company-box
+    :after company
+    :config
+    (add-hook 'company-mode-hook 'company-box-mode))
+
+  (pkg/use copilot
+    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
+    :bind (("M-TAB" . 'copilot-accept-completion-by-word)
+	   ("M-<tab>" . 'copilot-accept-completion-by-word)
+	   ("s-<tab>" . 'copilot-accept-completion)
+	   ("s-TAB" . 'copilot-accept-completion)
+	   ("s-n" . 'copilot-next-completion)
+	   ("s-p" . 'copilot-previous-completion))
+    :ensure t)
+
+  (add-hook 'prog-mode-hook 'copilot-mode)
+  (add-hook 'yaml-mode-hook 'copilot-mode)
+  (add-hook 'web-mode-hook 'copilot-mode)
+
+  ; AI Assistant
+  (use-package aidermacs
+    :bind (("C-c a" . aidermacs-transient-menu))
+    :custom
+    (aidermacs-default-chat-mode 'coder)
+    ;;(aidermacs-default-model "openrouter/anthropic/claude-sonnet-4")
+    (aidermacs-default-model "openai/gpt-5")
+
+    ;; FREE architect/reasoning model
+    ;; (aidermacs-architect-model "openrouter/auto")        ; let OR decide
+    ;; (aidermacs-architect-model "deepseek/deepseek-v3-0324:free")
+    ;; (aidermacs-architect-model "mistralai/mixtral-8x7b-instruct:free")
+
+    ;; Optional: a tiny “weak” model for commit messages & summaries
+    (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))
+
+  (use-package shell-maker
+    :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
+
+  (use-package copilot-chat
+    :straight (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
+    :custom
+    (copilot-chat-frontend 'shell-maker)
+    :config
+    (require 'copilot-chat-shell-maker)
+    (push '(shell-maker . copilot-chat-shell-maker-init) copilot-chat-frontend-list))
+
+  (pkg/use yaml-mode)
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+
+  (pkg/use yasnippet)
+
+(require 'subr-x) ;; for string-trim
+(require 'aidermacs)
+
+(defun aidermacs--project-root-or-default ()
+  "Return a sensible project root: projectile, vc, or `default-directory`."
+  (or (and (fboundp 'projectile-project-root) (projectile-project-root))
+      (and (fboundp 'vc-root-dir) (vc-root-dir))
+      default-directory))
+
+(defun aidermacs-add-files-from-current-buffer (&optional use-region)
+  "Add all files listed (one per line) in the current buffer to Aidermacs.
+If USE-REGION (prefix arg) is non-nil and a region is active,
+use only the region.
+
+Supports absolute and relative paths. Relative paths are resolved
+from the project root when possible. Lines starting with # are ignored."
+  (interactive "P")
+  (let* ((raw (if (and use-region (use-region-p))
+                  (buffer-substring-no-properties (region-beginning)
+                                                 (region-end))
+                (buffer-substring-no-properties (point-min)
+                                                (point-max))))
+         (lines (split-string raw "\n" t))
+         (proj-root (aidermacs--project-root-or-default))
+         added skipped)
+
+    (dolist (ln lines)
+      (let ((s (string-trim ln)))
+        (when (and (not (string-empty-p s))
+                   (not (string-prefix-p "#" s)))
+          (let* ((path (if (file-name-absolute-p s)
+                           (expand-file-name s)
+                         (expand-file-name s proj-root)))
+                 (path (if (string-suffix-p "/" path)
+                           (directory-file-name path)
+                         path)))
+            (if (file-exists-p path)
+                (condition-case err
+                    (progn
+                      ;; IMPORTANT: Use funcall so the interactive prompt is not triggered
+                      (funcall 'aidermacs-add-file path)
+                      (push path added))
+                  (error (message "Error adding %s: %S" path err)))
+              (push path skipped))))))
+
+    ;; Messages
+    (when added
+      (message "Added %d files to Aidermacs." (length added)))
+
+    (when skipped
+      (dolist (p (reverse skipped))
+        (message "⚠️  Skipping missing file: %s" p)))
+
+    (list :added (nreverse added)
+          :skipped (nreverse skipped))))
+
+(global-set-key (kbd "C-c f") 'aidermacs-add-files-from-current-buffer)
+
+
+)
+
+(provide 'plugins/devel/core)
+;;; core.el ends here
