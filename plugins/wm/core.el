@@ -28,23 +28,36 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
   (interactive)  
   (pkg/use exwm)
   (require 'exwm)
-  (require 'exwm-config)
-  (require 'exwm-systemtray)
   (require 'exwm-randr)
-  ;; Configure EXWM
-  (exwm-config-default)
+  ;; Default workspace count (formerly handled by `exwm-config-default').
+  (unless (get 'exwm-workspace-number 'saved-value)
+    (setq exwm-workspace-number 4))
+  ;; Hide the menu bar, tool bar (icons) and scroll bar. In WM mode the
+  ;; `editor' plugin is not loaded, so this used to be done by
+  ;; `exwm-config-default'; restore it here now that we no longer call it.
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  ;; Make the X window class name the buffer name.
+  (add-hook 'exwm-update-class-hook
+            (lambda ()
+              (exwm-workspace-rename-buffer exwm-class-name)))
+  ;; Set global keybindings (populates `exwm-input-global-keys' before start).
+  (wm/setup-global-keybindings)
   ;; Set up screen change hook
   (add-hook 'exwm-randr-screen-change-hook #'wm/update-displays)
   ;; Enable RandR support
-  (exwm-randr-enable)
-  ;; Enable system tray
-  (exwm-systemtray-enable)
-  ;; Set global keybindings
-  (wm/setup-global-keybindings)
+  (exwm-randr-mode 1)
+  ;; NOTE: the system tray is intentionally disabled so the top tray icons do
+  ;; not show. Re-add `(exwm-systemtray-mode 1)' (and the `exwm-systemtray'
+  ;; require above) to bring it back.
+  ;; Start the window manager
+  (exwm-wm-mode 1)
   ;; display-time-mode
   (display-time-mode 1)
   (display-battery-mode 1)
-  (start-process-shell-command "dunst" nil "dunst")
+  ;; NOTE: dunst is started by NixOS (`services.dunst.enable = true'); do not
+  ;; launch a second copy here or it will fight over the notification D-Bus name.
   )
 
 ;;; Helper Functions
@@ -148,7 +161,7 @@ Assigns workspaces to monitors according to the desired configuration."
           ([?\s-d] . (lambda (command)
                        (interactive (list (read-shell-command "$ ")))
                        (start-process-shell-command command nil command)))
-          ;; Bind "s-l" to "screen lock"
+          ;; Bind "s-l" to "screen lock" (systemd/GNOME session locker).
           ([?\s-l] . (lambda ()
                        (interactive)
                        (start-process "" nil "dm-tool lock")))

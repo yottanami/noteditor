@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260">
+  <!-- Dark rounded card so the wordmark pops on the orange background -->
+  <rect x="10" y="10" width="700" height="240" rx="28" fill="#16181d"/>
+  <!-- Wordmark -->
+  <text x="350" y="135" text-anchor="middle"
+        font-family="DejaVu Sans, Verdana, sans-serif" font-weight="700"
+        font-size="74" letter-spacing="6" fill="#f5f6f7">NOTEDITOR</text>
+  <!-- Blinking-cursor motif in the theme's orange -->
+  <rect x="610" y="78" width="22" height="66" rx="4" fill="#f97316"/>
+  <!-- Orange accent underline -->
+  <rect x="150" y="162" width="420" height="5" rx="2.5" fill="#f97316"/>
+  <!-- URL -->
+  <text x="360" y="210" text-anchor="middle"
+        font-family="DejaVu Sans Mono, monospace" font-size="24"
+        fill="#9aa0aa">https://github.com/yottanami/noteditor</text>
+</svg>
