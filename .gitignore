@@ -32,6 +32,11 @@ bm-repository
 emacs.d/
 /build/
 
+# Nix
+result
+result-*
+
 **/*/sitemap.inc
 .aider*
 .env
+.claude/

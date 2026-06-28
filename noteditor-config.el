@@ -16,7 +16,10 @@
 ;;
 ;;; Commentary:
 ;;; Code:
-(setq debug-on-error t)
+
+;; Abort loudly on load errors only when explicitly debugging
+;; (set NOTEDITOR_DEBUG=true).  A normal launch stays quiet.
+(setq debug-on-error (string= (getenv "NOTEDITOR_DEBUG") "true"))
 
 
 (defvar noteditor-home (getenv "NOTEDITOR_HOME")
@@ -27,10 +30,21 @@
 ;;(setq custom-file (format "%s/.noteditor.custom.el" (getenv "HOME")))
 (setq user-emacs-directory "~/.noteditor/emacs.d")
 
-(setq user-init-file "noteditor-user.el")
-
-(when (file-exists-p user-init-file)
-  (load user-init-file))
+;; Load the user override file.  Under Nix the bundled copy lives in the
+;; read-only store, so prefer a user-writable location.  Earlier entries
+;; win; the bundled stub is the final fallback.
+(let ((user-files
+       (list (expand-file-name "noteditor/noteditor-user.el"
+                               (or (getenv "XDG_CONFIG_HOME")
+                                   (expand-file-name "~/.config")))
+             (expand-file-name "~/.noteditor/noteditor-user.el")
+             (and noteditor-home
+                  (expand-file-name "noteditor-user.el" noteditor-home)))))
+  (catch 'loaded
+    (dolist (f (delq nil user-files))
+      (when (file-exists-p f)
+        (load f nil 'nomessage)
+        (throw 'loaded f)))))
 
 (require 'core/utils)
 
