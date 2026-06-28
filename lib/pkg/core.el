@@ -21,57 +21,48 @@
 ;;; Code:
 
 (require 'core/utils)
-(defvar bootstrap-version 5)
 
-(defcustom pkg-package-directory (concat noteditor-home "/.pkg")
-  "Specify the directory to store all the dependencies."
-  :group 'pkg
-  :type 'string)
-
-(defun fpkg/install-and-load-use-package ()
-  "Install and load the use-package in compile time."
-  ;; TODO Enable use-package on compile time
-  ;;(eval-when-compile)
-  (straight-use-package 'use-package)
-  (setq use-package-always-ensure t)
-  (require 'use-package))
+;; All packages are provided by Nix at build time and are already on
+;; `load-path' (via emacsWithPackages).  We therefore drive everything
+;; through plain `use-package' with `:ensure nil' -- no network access,
+;; no package manager bootstrap, no writes to the store.
 
 (defun pkg/initialize ()
-  "Initialize PKG."
-  (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
+  "Initialize the package layer.
+Packages are preinstalled by Nix and live on `load-path'.  Activate
+their autoloads (this also runs at a normal startup, but not under
+`--batch', so we call it explicitly), then load `use-package' and make
+sure it never tries to install anything itself."
+  (require 'package)
+  (package-activate-all)
+  (require 'use-package)
+  (setq use-package-always-ensure nil))
 
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage)
-    (fpkg/install-and-load-use-package)))
-
-(defun inject-straight (args)
-  "Inject `:straight t' to ARGS it the key was missing."
-  (if (member :straight args)
-      args
-    (append args '(:straight t))))
-
+(defun pkg/strip-straight (args)
+  "Return ARGS (a `use-package' plist tail) without any `:straight' pair.
+Removes the `:straight' keyword and its single value form, whatever its
+shape (t, a symbol, or a list recipe such as (smart-mode-line :source melpa))."
+  (let (out (rest args))
+    (while rest
+      (if (eq (car rest) :straight)
+          (setq rest (cddr rest))       ; drop the keyword and its value
+        (push (car rest) out)
+        (setq rest (cdr rest))))
+    (nreverse out)))
 
 (defun inject-defer (args)
-  "Inject `:defer t' to ARGS it the key was missing."
+  "Inject `:defer t' into ARGS if the key was missing."
   (if (member :defer args)
       args
     (append args '(:defer t))))
-(defmacro pkg/use (pkg &rest details)
-  "Install the given package DETAILS PKG via use-package and straight."
-  (declare (indent defun))
 
-  (if (and (listp details) (< 0 (length details)))
-      (let ((params (inject-straight (inject-defer details))))
-          (progn
-            `(use-package ,pkg ,@params)))
-    `(use-package ,pkg :straight t :defer t)))
+(defmacro pkg/use (pkg &rest details)
+  "Configure the preinstalled package PKG via `use-package' with DETAILS.
+Any `:straight' recipe is stripped (packages come from Nix) and `:ensure
+nil' is forced so `use-package' never reaches out to a package archive."
+  (declare (indent defun))
+  `(use-package ,pkg :ensure nil
+     ,@(inject-defer (pkg/strip-straight details))))
 
 (provide 'lib/pkg/core)
 ;;; core.el ends here
