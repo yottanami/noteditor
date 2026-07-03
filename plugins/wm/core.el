@@ -21,6 +21,21 @@
   "Position of the external monitor relative to the internal display.
 Possible values include '--above', '--below', '--left-of', '--right-of'.")
 
+;; Which concrete program each app-launcher keybinding starts.  Defaults come
+;; from the matching environment variable so the choice of terminal/browser/
+;; player lives in the host configuration (e.g. `environment.sessionVariables')
+;; rather than being hard-coded here.  Each value is a shell command string.
+
+(defvar wm/terminal (or (getenv "TERMINAL") "xterm")
+  "Shell command the terminal keybinding (s-x) launches.")
+
+(defvar wm/browser (or (getenv "BROWSER") "xdg-open https://")
+  "Shell command the browser keybinding (s-b) launches.
+Left at the default it opens the freedesktop default browser via `xdg-open'.")
+
+(defvar wm/music-player (or (getenv "MUSIC_PLAYER") "xdg-open")
+  "Shell command the music-player keybinding (s-m) launches.")
+
 ;;; Initialization
 
 (defun wm/initialize ()
@@ -29,6 +44,7 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
   (pkg/use exwm)
   (require 'exwm)
   (require 'exwm-randr)
+  (require 'exwm-systemtray)
   ;; Default workspace count (formerly handled by `exwm-config-default').
   (unless (get 'exwm-workspace-number 'saved-value)
     (setq exwm-workspace-number 4))
@@ -48,17 +64,42 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
   (add-hook 'exwm-randr-screen-change-hook #'wm/update-displays)
   ;; Enable RandR support
   (exwm-randr-mode 1)
-  ;; NOTE: the system tray is intentionally disabled so the top tray icons do
-  ;; not show. Re-add `(exwm-systemtray-mode 1)' (and the `exwm-systemtray'
-  ;; require above) to bring it back.
+  ;; Enable the system tray so tray icons (e.g. network, battery) show.
+  (exwm-systemtray-mode 1)
   ;; Start the window manager
   (exwm-wm-mode 1)
   ;; display-time-mode
   (display-time-mode 1)
   (display-battery-mode 1)
-  ;; NOTE: dunst is started by NixOS (`services.dunst.enable = true'); do not
-  ;; launch a second copy here or it will fight over the notification D-Bus name.
+  ;; Notification daemon.  Normally started by the systemd `dunst' service;
+  ;; `wm/ensure-daemon' only launches a copy if none is already running, so we
+  ;; never fight over the notification D-Bus name.
+  (wm/ensure-daemon "dunst")
+  ;; Power manager: handles lid close, brightness keys and low-battery
+  ;; warnings (which it routes through dunst).  Bundled with noteditor and
+  ;; requires the UPower service to be enabled on the host.
+  (wm/ensure-daemon "xfce4-power-manager")
+  ;; Tray applets (need the system tray enabled above).  Each requires its
+  ;; matching system service on the host: NetworkManager, blueman/bluetooth
+  ;; and PipeWire/PulseAudio respectively.
+  (wm/ensure-daemon "nm-applet")
+  (wm/ensure-daemon "blueman-applet")
+  (wm/ensure-daemon "pasystray")
   )
+
+;;; Session daemons
+
+(defun wm/ensure-daemon (name &rest args)
+  "Start the program NAME with ARGS unless it is already running.
+Uses `pgrep' to avoid launching a duplicate when the same daemon is
+already started elsewhere (e.g. by a systemd unit), which would make two
+copies fight over a shared D-Bus name.  Does nothing if NAME is not on
+the exec PATH."
+  (when (and (executable-find name)
+             ;; `pgrep -x' exits 0 when a process with this exact name is
+             ;; found, non-zero otherwise; only launch when none is found.
+             (not (zerop (call-process "pgrep" nil nil nil "-x" name))))
+    (apply #'start-process name nil name args)))
 
 ;;; Helper Functions
 
@@ -139,6 +180,14 @@ Assigns workspaces to monitors according to the desired configuration."
 
 ;;; Keybindings
 
+(defun wm/launch (command)
+  "Start shell COMMAND as a detached process.
+Unlike a bare `start-process', this honours multi-word commands such as
+\"flameshot gui\".  Warns instead of failing when COMMAND is empty."
+  (if (and (stringp command) (not (string-empty-p command)))
+      (start-process-shell-command command nil command)
+    (message "wm: no application configured for this keybinding")))
+
 (defun wm/setup-global-keybindings ()
   "Set up global keybindings for EXWM."
   (setq exwm-input-global-keys
@@ -161,26 +210,26 @@ Assigns workspaces to monitors according to the desired configuration."
           ([?\s-d] . (lambda (command)
                        (interactive (list (read-shell-command "$ ")))
                        (start-process-shell-command command nil command)))
-          ;; Bind "s-l" to "screen lock" (systemd/GNOME session locker).
+          ;; Bind "s-l" to "screen lock" (display-manager session locker).
           ([?\s-l] . (lambda ()
                        (interactive)
-                       (start-process "" nil "dm-tool lock")))
+                       (wm/launch "dm-tool lock")))
           ;; bind "s-s" to "screenshot".
           ([?\s-s] . (lambda ()
                        (interactive)
-                       (start-process "" nil "flameshot gui")))
-          ;; Bind "s-m" to "media player".
+                       (wm/launch "flameshot gui")))
+          ;; Bind "s-m" to the configured music player.
           ([?\s-m] . (lambda ()
                        (interactive)
-                       (start-process "" nil "spotify")))
-          ;; Bind "s-b" to "browser".
+                       (wm/launch wm/music-player)))
+          ;; Bind "s-b" to the configured web browser.
           ([?\s-b] . (lambda ()
                        (interactive)
-                       (start-process "" nil "braver")))
-          ;; Bind "s-x" to "terminal".
+                       (wm/launch wm/browser)))
+          ;; Bind "s-x" to the configured terminal.
           ([?\s-x] . (lambda ()
                        (interactive)
-                       (start-process "" nil "alacritty")))
+                       (wm/launch wm/terminal)))
           ;; Bind "s-t" to "tab-bar-mode".
           ([?\s-t] . tab-bar-mode)
           )))
