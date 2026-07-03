@@ -239,6 +239,25 @@ Unlike a bare `start-process', this honours multi-word commands such as
                        (wm/launch wm/terminal)))
           ;; Bind "s-t" to "tab-bar-mode".
           ([?\s-t] . tab-bar-mode)
+          ;; Media keys.  EXWM grabs these on the root window so they work
+          ;; regardless of the focused window.  Volume/mute go through
+          ;; PipeWire's `wpctl'; brightness through `brightnessctl' (needs the
+          ;; udev rule that makes the backlight writable by the `video' group).
+          ([XF86AudioRaiseVolume] . (lambda ()
+                                      (interactive)
+                                      (wm/launch "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")))
+          ([XF86AudioLowerVolume] . (lambda ()
+                                      (interactive)
+                                      (wm/launch "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")))
+          ([XF86AudioMute] . (lambda ()
+                               (interactive)
+                               (wm/launch "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")))
+          ([XF86MonBrightnessUp] . (lambda ()
+                                     (interactive)
+                                     (wm/launch "brightnessctl set 5%+")))
+          ([XF86MonBrightnessDown] . (lambda ()
+                                       (interactive)
+                                       (wm/launch "brightnessctl set 5%-")))
           )))
 
 ;;; Provide Feature
