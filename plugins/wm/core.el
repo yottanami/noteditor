@@ -79,6 +79,13 @@ Left at the default it opens the freedesktop default browser via `xdg-open'.")
   ;; warnings (which it routes through dunst).  Bundled with noteditor and
   ;; requires the UPower service to be enabled on the host.
   (wm/ensure-daemon "xfce4-power-manager")
+  ;; StatusNotifier -> XEmbed bridge.  `exwm-systemtray' only speaks the old
+  ;; XEmbed tray protocol, but modern applets (blueman-applet, nm-applet,
+  ;; pasystray) publish their icons via StatusNotifier/AppIndicator instead and
+  ;; exit when no watcher is present.  `snixembed' provides that watcher and
+  ;; proxies each icon into an XEmbed one the tray can embed, so it must start
+  ;; before the applets below.
+  (wm/ensure-daemon "snixembed")
   ;; Tray applets (need the system tray enabled above).  Each requires its
   ;; matching system service on the host: NetworkManager, blueman/bluetooth
   ;; and PipeWire/PulseAudio respectively.
