@@ -48,6 +48,12 @@ let
     xrandr
     flameshot
     openssh
+    pkgs.dunst # notification daemon the WM routes alerts through
+    pkgs.xfce.xfce4-power-manager # power manager: lid, brightness keys, battery warnings
+    pkgs.networkmanagerapplet # provides `nm-applet` (network tray applet)
+    pkgs.blueman # provides `blueman-applet` (bluetooth tray applet)
+    pkgs.pasystray # volume/audio tray applet
+    pkgs.pavucontrol # GUI mixer that pasystray opens on demand
   ]
   ++ extraRuntimeInputs;
 
