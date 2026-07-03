@@ -49,7 +49,7 @@ let
     flameshot
     openssh
     pkgs.dunst # notification daemon the WM routes alerts through
-    pkgs.xfce.xfce4-power-manager # power manager: lid, brightness keys, battery warnings
+    pkgs.xfce4-power-manager # power manager: lid, brightness keys, battery warnings
     pkgs.snixembed # bridges StatusNotifier/AppIndicator icons to XEmbed so exwm-systemtray can show them
     pkgs.networkmanagerapplet # provides `nm-applet` (network tray applet)
     pkgs.blueman # provides `blueman-applet` (bluetooth tray applet)
