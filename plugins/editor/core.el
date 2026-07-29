@@ -41,7 +41,16 @@
   (setq ido-everywhere t)             ;; Use ido for more completion tasks
   ;; Changes the way ido displays the completion list
   (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
-  (setq-default explicit-shell-file-name "/run/current-system/sw/bin/fish")
+  ;; Nix-provided tools are wired in via PATH (see nix/package.nix's
+  ;; makeWrapper), not baked-in store paths, so resolve the shell the same
+  ;; way: prefer fish if it's on PATH (e.g. via extraRuntimeInputs), fall
+  ;; back to the user's own $SHELL, then a plain sh. Works whether or not
+  ;; the host is NixOS, and whether or not this is even a Nix-built run.
+  (setq-default explicit-shell-file-name
+                 (or (executable-find "fish")
+                     (getenv "SHELL")
+                     (executable-find "bash")
+                     "/bin/sh"))
 
   ;; Ensures that Emacs inherits the PATH and other environment variables from your shell.
   (pkg/use exec-path-from-shell
