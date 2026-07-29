@@ -169,21 +169,35 @@ Assigns workspaces to monitors according to the desired configuration."
       (message "No external monitors detected; all workspaces use internal display")
       (setq exwm-randr-workspace-monitor-plist nil))))  ;; All workspaces use default monitor
 
+(defvar wm/--update-displays-timer nil
+  "Pending timer for the deferred body of `wm/update-displays', or nil.")
+
 (defun wm/update-displays ()
-  "Update display configuration based on connected monitors."
-  (sleep-for 2)
-  (let* ((outputs (wm/get-connected-outputs))
-         (internal-output (car outputs))
-         (external-outputs (cdr outputs)))
-    (if internal-output
-        (progn
-          ;; Build and execute xrandr command
-          (let ((xrandr-command (wm/build-xrandr-command internal-output external-outputs)))
-            (message "Executing xrandr command: %s" xrandr-command)
-            (start-process-shell-command "xrandr" nil xrandr-command))
-          ;; Update workspace monitor mapping
-          (wm/update-workspace-monitor-plist internal-output external-outputs))
-      (message "No internal output detected; cannot configure displays"))))
+  "Update display configuration based on connected monitors.
+Waits 2 seconds for hardware to settle before reconfiguring outputs,
+without blocking Emacs while it waits -- since `exwm-randr-screen-change-hook'
+can fire more than once in that window (e.g. plugging in two monitors
+close together), a hotplug event during the wait cancels and reschedules
+it rather than running the reconfiguration redundantly."
+  (when wm/--update-displays-timer
+    (cancel-timer wm/--update-displays-timer))
+  (setq wm/--update-displays-timer
+        (run-with-timer
+         2 nil
+         (lambda ()
+           (setq wm/--update-displays-timer nil)
+           (let* ((outputs (wm/get-connected-outputs))
+                  (internal-output (car outputs))
+                  (external-outputs (cdr outputs)))
+             (if internal-output
+                 (progn
+                   ;; Build and execute xrandr command
+                   (let ((xrandr-command (wm/build-xrandr-command internal-output external-outputs)))
+                     (message "Executing xrandr command: %s" xrandr-command)
+                     (start-process-shell-command "xrandr" nil xrandr-command))
+                   ;; Update workspace monitor mapping
+                   (wm/update-workspace-monitor-plist internal-output external-outputs))
+               (message "No internal output detected; cannot configure displays")))))))
 
 ;;; Keybindings
 
