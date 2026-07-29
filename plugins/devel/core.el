@@ -178,14 +178,12 @@
     (add-hook 'company-mode-hook 'company-box-mode))
 
   (pkg/use copilot
-    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
     :bind (("M-TAB" . 'copilot-accept-completion-by-word)
 	   ("M-<tab>" . 'copilot-accept-completion-by-word)
 	   ("s-<tab>" . 'copilot-accept-completion)
 	   ("s-TAB" . 'copilot-accept-completion)
 	   ("s-n" . 'copilot-next-completion)
-	   ("s-p" . 'copilot-previous-completion))
-    :ensure t)
+	   ("s-p" . 'copilot-previous-completion)))
 
   (add-hook 'prog-mode-hook 'copilot-mode)
   (add-hook 'yaml-mode-hook 'copilot-mode)
@@ -207,11 +205,9 @@
     ;; Optional: a tiny “weak” model for commit messages & summaries
     (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))
 
-  (use-package shell-maker
-    :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
+  (pkg/use shell-maker)
 
-  (use-package copilot-chat
-    :straight (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
+  (pkg/use copilot-chat
     :custom
     (copilot-chat-frontend 'shell-maker)
     :config

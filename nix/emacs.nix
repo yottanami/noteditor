@@ -65,6 +65,7 @@ emacsPkgs.emacsWithPackages (
     company
     company-box
     aidermacs
+    copilot
     shell-maker
     copilot-chat
     yaml-mode
