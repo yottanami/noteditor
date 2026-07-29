@@ -26,7 +26,7 @@ Possible values include '--above', '--below', '--left-of', '--right-of'.")
 ;; player lives in the host configuration (e.g. `environment.sessionVariables')
 ;; rather than being hard-coded here.  Each value is a shell command string.
 
-(defvar wm/terminal (or (getenv "TERMINAL") "xterm")
+(defvar wm/terminal (or (getenv "TERMINAL") "alacritty")
   "Shell command the terminal keybinding (s-x) launches.")
 
 (defvar wm/browser (or (getenv "BROWSER") "xdg-open https://")
