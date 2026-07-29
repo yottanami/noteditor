@@ -48,6 +48,8 @@ let
     xrandr
     flameshot
     openssh
+    pkgs.xterm # default terminal launcher (s-x) when $TERMINAL isn't set
+    pkgs.xdg-utils # provides `xdg-open`, the default browser (s-b) and music-player (s-m) launcher
     pkgs.dunst # notification daemon the WM routes alerts through
     pkgs.xfce4-power-manager # power manager: lid, brightness keys, battery warnings
     pkgs.snixembed # bridges StatusNotifier/AppIndicator icons to XEmbed so exwm-systemtray can show them

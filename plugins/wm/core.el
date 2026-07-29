@@ -218,6 +218,12 @@ Unlike a bare `start-process', this honours multi-word commands such as
                        (interactive (list (read-shell-command "$ ")))
                        (start-process-shell-command command nil command)))
           ;; Bind "s-l" to "screen lock" (display-manager session locker).
+          ;; `dm-tool' is intentionally NOT in this package's own Nix
+          ;; closure (nix/package.nix's runtimeTools): it only does
+          ;; anything meaningful when LightDM is the active display
+          ;; manager, which is a host/session choice, not something
+          ;; noteditor's own package should bundle. On a host without
+          ;; LightDM this binding is a no-op rather than a broken path.
           ([?\s-l] . (lambda ()
                        (interactive)
                        (wm/launch "dm-tool lock")))
