@@ -88,13 +88,18 @@ noteditor.override {
 | =s-o=        | Switch to other window                             |
 | =s-r=        | Reset (exit char-mode and fullscreen)              |
 | =s-g=        | Keyboard quit                                      |
+| =s-<f5>=     | Force a display re-detection cycle (see below)     |
 
 *** Other keybindings
 | =s-t= |  tab-bar-mode  |
 
 ** Plugins
 *** wm
-  Window manager based on EXWM
+  Window manager based on EXWM. Automatically reconfigures displays on
+  monitor connect/disconnect. Some docks never send a hot-plug event when
+  only the monitor cable (not the dock-laptop link) is unplugged/replugged,
+  which leaves an external output "connected" but with no signal; press
+  =s-<f5>= to force a re-detection cycle without touching the cable.
 *** editor
   General-purpose text editing: UI, navigation, search and window management.
 *** devel
