@@ -67,9 +67,10 @@ noteditor.override {
 #+END_SRC
 
 *** Environment variables
-| =NOTEDITOR_HOME=  | Pathname of Noteditor (set by the launcher)        |
-| =NOTEDITOR_WM=    | =true= for window-manager mode, =false= for editor |
-| =NOTEDITOR_DEBUG= | =true= to abort loudly on load errors              |
+| =NOTEDITOR_HOME=        | Pathname of Noteditor (set by the launcher)          |
+| =NOTEDITOR_WM=          | =true= for window-manager mode, =false= for editor   |
+| =NOTEDITOR_DEBUG=       | =true= to abort loudly on load errors                |
+| =NOTEDITOR_JDTLS_HOME=  | Java LSP (jdtls) install dir (set by the launcher)   |
 
 ** Keybindings
 *** Fast dial keybindings
@@ -80,6 +81,14 @@ noteditor.override {
 | =s-m= | Media player        |
 | =s-b= | Browser             |
 
+*** Workspace and window keybindings
+| =s-a=        | Pick any open buffer/app and jump to its workspace |
+| =s-w=        | Switch workspace interactively                     |
+| =s-0=..=s-9= | Switch to workspace by number                      |
+| =s-o=        | Switch to other window                             |
+| =s-r=        | Reset (exit char-mode and fullscreen)              |
+| =s-g=        | Keyboard quit                                      |
+
 *** Other keybindings
 | =s-t= |  tab-bar-mode  |
 
@@ -87,8 +96,42 @@ noteditor.override {
 *** wm
   Window manager based on EXWM
 *** editor
-  Anything that is needed to write code!
+  General-purpose text editing: UI, navigation, search and window management.
+*** devel
+  The IDE plugin: project management, language support, LSP, debugging,
+  version control, completion and AI assistants. See [[*IDE features]] below.
 *** theme
   Fonts, colors and more
 *** org
   org-mode, org-roam and other related modes
+
+** IDE features
+The =devel= plugin turns noteditor into a multi-language IDE. Highlighting and
+language features are enabled automatically based on the file type — just open
+a file and its language server and tree-sitter mode start on their own.
+
+*** Languages
+Out of the box: *C/C++*, *Python*, *Ruby*, *Java*, *TypeScript* and
+*JavaScript*. Each gets LSP (via =lsp-mode=), tree-sitter highlighting (the
+built-in =*-ts-mode=) and, where available, debugging (=dap-mode=). Every
+language server is bundled by Nix — nothing is installed at runtime.
+
+*** Selecting languages
+All six languages are on by default. To enable only a subset, set
+=noteditor-devel-languages= in your =noteditor-user.el= *before* the plugin
+loads:
+#+BEGIN_SRC emacs-lisp
+;; Valid symbols: c-cpp python ruby java typescript javascript
+(setq noteditor-devel-languages '(python ruby typescript))
+#+END_SRC
+This is read at startup — no rebuild is needed to change the set. (Adding a
+*new* language's server binary is still a Nix change in =nix/package.nix=.)
+
+*** Key IDE bindings
+| =M-.=     | Jump to definition                 |
+| =M-?=     | Find references                    |
+| =M-,=     | Jump back                          |
+| =C-c l=   | LSP command prefix                 |
+| =C-x g=   | Magit status                       |
+| =C-c a=   | AI assistant (aidermacs) menu      |
+Diagnostics from LSP are shown on the fly via =flycheck=.

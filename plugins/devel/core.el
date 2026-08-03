@@ -27,6 +27,43 @@
 (defun devel/initialize ()
   "Initilize Noteditor development plugin."
 
+  ;; --- Language IDE support -------------------------------------------------
+  ;; Which languages get full IDE features (LSP + tree-sitter highlighting).
+  ;; Override in noteditor-user.el, e.g. (setq noteditor-devel-languages
+  ;; '(python ruby)).  Because the user file loads first and this is a `defvar',
+  ;; a value the user set earlier is never clobbered -- their choice wins.
+  (defvar noteditor-devel-languages
+    '(c-cpp python ruby java typescript javascript)
+    "Languages noteditor auto-enables IDE features (LSP + tree-sitter) for.
+Valid symbols: c-cpp python ruby java typescript javascript.")
+
+  (defconst noteditor--language-hooks
+    '((c-cpp      . (c-mode-hook c++-mode-hook c-ts-mode-hook c++-ts-mode-hook))
+      (python     . (python-mode-hook python-ts-mode-hook))
+      (ruby       . (ruby-mode-hook ruby-ts-mode-hook))
+      (java       . (java-mode-hook java-ts-mode-hook))
+      (typescript . (typescript-mode-hook typescript-ts-mode-hook tsx-ts-mode-hook))
+      (javascript . (js-mode-hook js-ts-mode-hook js2-mode-hook)))
+    "Major-mode hooks that should auto-start LSP, keyed by language symbol.")
+
+  (defconst noteditor--language-ts-langs
+    '((c-cpp      . (c cpp))
+      (python     . (python))
+      (ruby       . (ruby))
+      (java       . (java))
+      (typescript . (typescript tsx))
+      (javascript . (javascript)))
+    "Tree-sitter grammar symbols per language, driving `treesit-auto'.")
+
+  (defun noteditor--enable-language-lsp ()
+    "Attach `lsp-deferred' to every enabled language's major-mode hooks.
+Both classic and `*-ts-mode' hooks are wired so LSP activation does not
+depend on whether tree-sitter remapping succeeded."
+    (dolist (lang noteditor-devel-languages)
+      (dolist (hook (alist-get lang noteditor--language-hooks))
+        (add-hook hook #'lsp-deferred))))
+  (noteditor--enable-language-lsp)
+
   (pkg/use projectile
     :init
     (projectile-mode +1)
@@ -59,8 +96,8 @@
             (lambda ()
               (setq typescript-indent-level 4)
               (setq indent-tabs-mode nil)))
-  ;; Enable lsp-mode for TypeScript files
-  (add-hook 'typescript-mode-hook #'lsp)
+  ;; TypeScript/JavaScript LSP activation is handled by
+  ;; `noteditor--enable-language-lsp' above.
 
   ;; Enable lsp-mode for Svelte files
   (pkg/use svelte-mode)
@@ -78,8 +115,7 @@
   (with-eval-after-load 'lsp-mode
     (add-to-list 'lsp-disabled-clients 'rubocop-ls)
     (add-to-list 'lsp-disabled-clients 'typeprof-ls))
-  (add-hook 'ruby-mode-hook #'lsp)
-  (add-hook 'ruby-ts-mode-hook #'lsp)
+  ;; Ruby LSP activation is handled by `noteditor--enable-language-lsp' above.
 
   (pkg/use ag)
 
@@ -106,13 +142,20 @@
 
   ;; LSP and DAP Mode Configuration
   (pkg/use lsp-mode
-    :commands lsp
+    :commands (lsp lsp-deferred)
     :init
     ;; `lsp-keymap-prefix' must be set before lsp-mode is loaded.
     (setq lsp-keymap-prefix "C-c l") ;; Use "C-c l" as the prefix for lsp commands
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-enable-indentation nil)
     (setq lsp-enable-on-type-formatting nil)
+    ;; Route diagnostics through flycheck (configured below).
+    (setq lsp-diagnostics-provider :flycheck)
+    :bind (:map lsp-mode-map
+                ;; xref's `M-.'/`M-?' already work via lsp's xref backend; make
+                ;; the intent explicit and add a mnemonic references binding.
+                ("M-." . lsp-find-definition)
+                ("M-?" . lsp-find-references))
     :config
     (add-to-list 'lsp-language-id-configuration '(nix-mode . "nix"))
     (lsp-register-client
@@ -126,15 +169,24 @@
       (setq lsp-ui-doc-enable t
             lsp-ui-doc-show-with-cursor t))
     :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    ;; Peek-style jump to definition/references (popup with preview).
+    (define-key lsp-ui-mode-map [remap xref-find-definitions]
+                #'lsp-ui-peek-find-definitions)
+    (define-key lsp-ui-mode-map [remap xref-find-references]
+                #'lsp-ui-peek-find-references))
 
   (pkg/use helm-lsp :commands helm-lsp-workspace-symbol)
 
   (pkg/use lsp-treemacs :commands lsp-treemacs-errors-list)
 
-  ;; Java Support
-  (pkg/use lsp-java)
-  (add-hook 'java-mode-hook #'lsp)
+  ;; Java Support.  Point lsp-java at the hermetic, Nix-provided jdtls (set via
+  ;; NOTEDITOR_JDTLS_HOME in the wrapper) instead of its runtime auto-download.
+  ;; LSP activation for java-mode/java-ts-mode is handled by the enable loop.
+  (pkg/use lsp-java
+    :init
+    (when-let ((jdtls-home (getenv "NOTEDITOR_JDTLS_HOME")))
+      (setq lsp-java-server-install-dir jdtls-home)))
 
   ;; DAP Mode for Debugging
   (pkg/use dap-mode
@@ -146,7 +198,37 @@
     ;; Set default debug template
     (setq dap-python-debugger 'debugpy)
     ;; Enable DAP mode for Python
-    (require 'dap-java))   ;; Enable DAP mode for Java
+    (require 'dap-java)   ;; Enable DAP mode for Java
+    ;; C/C++ via LLVM's DAP adapter (bundled: pkgs.lldb -> `lldb-dap').  Chosen
+    ;; over dap-cpptools, which downloads the VS Code extension at runtime.
+    (require 'dap-lldb)
+    (setq dap-lldb-debug-program '("lldb-dap")))
+
+  ;; On-the-fly linting.  lsp-mode feeds its diagnostics through flycheck
+  ;; (see `lsp-diagnostics-provider' above); flycheck also covers non-LSP
+  ;; buffers.  `:defer nil' loads it eagerly so the global mode is live at
+  ;; startup (the `pkg/use' macro force-defers unless `:defer' is given).
+  (pkg/use flycheck
+    :defer nil
+    :config
+    (global-flycheck-mode))
+
+  ;; Tree-sitter: auto-remap classic major modes to the built-in `*-ts-mode'
+  ;; per file type, using grammars baked in by Nix.  `treesit-auto' falls back
+  ;; to the classic mode when a grammar is missing or ABI-incompatible.
+  ;; `:defer nil' so `global-treesit-auto-mode' is active before files open.
+  (pkg/use treesit-auto
+    :defer nil
+    :init
+    (setq treesit-auto-install nil) ;; grammars come from Nix; never fetch
+    (setq treesit-auto-langs
+          (delete-dups
+           (mapcan (lambda (lang)
+                     (copy-sequence
+                      (alist-get lang noteditor--language-ts-langs)))
+                   noteditor-devel-languages)))
+    :config
+    (global-treesit-auto-mode))
 
   ;; Optional: Hydra for easier control
   (pkg/use hydra)
@@ -187,9 +269,18 @@
 	   ("s-p" . 'copilot-previous-completion))
     :ensure t)
 
-  (add-hook 'prog-mode-hook 'copilot-mode)
-  (add-hook 'yaml-mode-hook 'copilot-mode)
-  (add-hook 'web-mode-hook 'copilot-mode)
+  ;; Enable copilot only when the package is actually present.  copilot.el is
+  ;; pulled via a `:straight' recipe that Nix strips, so on a stock build
+  ;; `copilot-mode' is void; calling it bare from `prog-mode-hook' would signal
+  ;; an error that aborts the whole hook chain -- which would stop `lsp' (and
+  ;; every other mode-hook) from ever running.  Guard it so LSP always starts.
+  (defun noteditor--maybe-enable-copilot ()
+    "Turn on `copilot-mode' iff the copilot package is available."
+    (when (fboundp 'copilot-mode)
+      (copilot-mode 1)))
+  (add-hook 'prog-mode-hook #'noteditor--maybe-enable-copilot)
+  (add-hook 'yaml-mode-hook #'noteditor--maybe-enable-copilot)
+  (add-hook 'web-mode-hook #'noteditor--maybe-enable-copilot)
 
   ; AI Assistant
   (use-package aidermacs

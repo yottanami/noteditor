@@ -58,6 +58,11 @@ Left at the default it opens the freedesktop default browser via `xdg-open'.")
   (add-hook 'exwm-update-class-hook
             (lambda ()
               (exwm-workspace-rename-buffer exwm-class-name)))
+  ;; Show X window buffers from *all* workspaces in buffer lists.  By default
+  ;; EXWM hides buffers living on other workspaces (their names get a leading
+  ;; space), which makes apps seem "lost" once you switch away.  Together with
+  ;; the "s-a" binding below this lets any app be found and jumped to.
+  (setq exwm-workspace-show-all-buffers t)
   ;; Set global keybindings (populates `exwm-input-global-keys' before start).
   (wm/setup-global-keybindings)
   ;; Set up screen change hook
@@ -206,6 +211,9 @@ Unlike a bare `start-process', this honours multi-word commands such as
           ([?\s-o] . other-window)
           ;; Bind "s-w" to switch workspace interactively.
           ([?\s-w] . exwm-workspace-switch)
+          ;; Bind "s-a" to pick any buffer (including X windows on other
+          ;; workspaces) and jump to the workspace it lives on.
+          ([?\s-a] . exwm-workspace-switch-to-buffer)
           ;; Bind "s-0" to "s-9" to switch to a workspace by its index.
           ,@(mapcar (lambda (i)
                       `(,(kbd (format "s-%d" i)) .
