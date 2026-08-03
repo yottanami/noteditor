@@ -190,6 +190,25 @@ Assigns workspaces to monitors according to the desired configuration."
           (wm/update-workspace-monitor-plist internal-output external-outputs))
       (message "No internal output detected; cannot configure displays"))))
 
+(defun wm/reset-displays ()
+  "Force a hard off/on cycle on every external output.
+Some docks never toggle the HPD line when only the monitor cable (not the
+dock-to-laptop link) is unplugged and replugged, so xrandr keeps reporting
+the output as `connected' with its old mode and never redoes link
+training, leaving the monitor powered but signal-less.  Running `xrandr
+--auto' alone does not help either, since xrandr sees no state change to
+react to.  This reproduces the effect of physically unplugging the dock:
+force every external output off, then let `wm/update-displays' rebuild
+and re-apply the configuration from scratch."
+  (interactive)
+  (let ((external-outputs (cdr (wm/get-connected-outputs))))
+    (if (null external-outputs)
+        (message "wm/reset-displays: no external outputs connected")
+      (dolist (output external-outputs)
+        (message "wm/reset-displays: forcing %s off" output)
+        (call-process "xrandr" nil nil nil "--output" output "--off"))
+      (run-with-timer 1 nil #'wm/update-displays))))
+
 ;;; Keybindings
 
 (defun wm/launch (command)
@@ -214,6 +233,10 @@ Unlike a bare `start-process', this honours multi-word commands such as
           ;; Bind "s-a" to pick any buffer (including X windows on other
           ;; workspaces) and jump to the workspace it lives on.
           ([?\s-a] . exwm-workspace-switch-to-buffer)
+          ;; Bind "s-<f5>" to force a display re-detection cycle.  Fixes docks
+          ;; that leave an external output "connected" with no signal after
+          ;; the monitor cable (not the dock link) is unplugged/replugged.
+          ([s-f5] . wm/reset-displays)
           ;; Bind "s-0" to "s-9" to switch to a workspace by its index.
           ,@(mapcar (lambda (i)
                       `(,(kbd (format "s-%d" i)) .
