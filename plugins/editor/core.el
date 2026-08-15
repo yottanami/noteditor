@@ -46,9 +46,14 @@
   ;; way: prefer fish if it's on PATH (e.g. via extraRuntimeInputs), fall
   ;; back to the user's own $SHELL, then a plain sh. Works whether or not
   ;; the host is NixOS, and whether or not this is even a Nix-built run.
+  ;; $SHELL is treated as unset when empty: some minimal/broken setups
+  ;; export SHELL="" rather than leaving it unset, and an empty string is
+  ;; non-nil in elisp, so a plain (or ... (getenv "SHELL") ...) would
+  ;; silently accept it and skip the bash/sh fallbacks below.
   (setq-default explicit-shell-file-name
                  (or (executable-find "fish")
-                     (getenv "SHELL")
+                     (let ((sh (getenv "SHELL")))
+                       (and sh (not (string-empty-p sh)) sh))
                      (executable-find "bash")
                      "/bin/sh"))
 
