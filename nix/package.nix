@@ -153,5 +153,17 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     license = lib.licenses.gpl3Plus;
     platforms = lib.platforms.linux;
     mainProgram = "noteditor";
+    # Not using lib.maintainers.<name> here since this package isn't (and
+    # per the project's own nixpkgs-upstream feasibility review, currently
+    # isn't planned to be) submitted to nixpkgs, so there's no entry in
+    # nixpkgs' maintainer-list.nix to reference.
+    maintainers = [
+      {
+        name = "Behnam Khanbeigi";
+        email = "yottanami@gnu.org";
+        github = "yottanami";
+        githubId = 54559;
+      }
+    ];
   };
 })
