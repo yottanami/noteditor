@@ -3,11 +3,10 @@
 * yaml without yaml-mode?
 * find end of block
 * start lsp on yml files
-* Install lsp servers
-* split editor plugin and progmode
+* DONE Install lsp servers (clangd, pylsp, ts, jdtls, lldb bundled in nix/package.nix)
+* DONE split editor plugin and progmode (devel plugin split out; language support is data-driven, user-selectable via noteditor-devel-languages)
 * do not let tab in yamls
-** Active progmode plugin only using `prog-mode-hook`
-* Dependencies npm install -g typescript-language-server typescript
+* DONE Dependencies npm install -g typescript-language-server typescript (bundled via Nix)
 * Add embark
 * Add eat
 * Read projectile-project-search-path from ENV var or config file
