@@ -260,20 +260,19 @@ depend on whether tree-sitter remapping succeeded."
     (add-hook 'company-mode-hook 'company-box-mode))
 
   (pkg/use copilot
-    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("dist" "*.el"))
     :bind (("M-TAB" . 'copilot-accept-completion-by-word)
 	   ("M-<tab>" . 'copilot-accept-completion-by-word)
 	   ("s-<tab>" . 'copilot-accept-completion)
 	   ("s-TAB" . 'copilot-accept-completion)
 	   ("s-n" . 'copilot-next-completion)
-	   ("s-p" . 'copilot-previous-completion))
-    :ensure t)
+	   ("s-p" . 'copilot-previous-completion)))
 
-  ;; Enable copilot only when the package is actually present.  copilot.el is
-  ;; pulled via a `:straight' recipe that Nix strips, so on a stock build
-  ;; `copilot-mode' is void; calling it bare from `prog-mode-hook' would signal
-  ;; an error that aborts the whole hook chain -- which would stop `lsp' (and
-  ;; every other mode-hook) from ever running.  Guard it so LSP always starts.
+  ;; Enable copilot only when the package is actually present.  copilot is not
+  ;; in the Nix closure (its `copilot-language-server' dependency is unfree, so
+  ;; the flake refuses to evaluate with it), so on a stock build `copilot-mode'
+  ;; is void; calling it bare from `prog-mode-hook' would signal an error that
+  ;; aborts the whole hook chain -- which would stop `lsp' (and every other
+  ;; mode-hook) from ever running.  Guard it so LSP always starts.
   (defun noteditor--maybe-enable-copilot ()
     "Turn on `copilot-mode' iff the copilot package is available."
     (when (fboundp 'copilot-mode)
@@ -298,16 +297,13 @@ depend on whether tree-sitter remapping succeeded."
     ;; Optional: a tiny “weak” model for commit messages & summaries
     (aidermacs-weak-model "openrouter/meta-llama/llama-3-8b-instruct:free"))
 
-  (use-package shell-maker
-    :straight (:host github :repo "xenodium/chatgpt-shell" :files ("shell-maker.el")))
+  (pkg/use shell-maker)
 
-  (use-package copilot-chat
-    :straight (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
+  ;; The frontend modules self-register, and `copilot-chat-frontend' has a
+  ;; `:set' that requires the matching one, so setting it is all that is needed.
+  (pkg/use copilot-chat
     :custom
-    (copilot-chat-frontend 'shell-maker)
-    :config
-    (require 'copilot-chat-shell-maker)
-    (push '(shell-maker . copilot-chat-shell-maker-init) copilot-chat-frontend-list))
+    (copilot-chat-frontend 'shell-maker))
 
   (pkg/use yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
