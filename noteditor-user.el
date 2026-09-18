@@ -71,5 +71,15 @@
 ;; (when (file-exists-p "~/.noteditor-user.el")
 ;;   (load "~/.noteditor-user.el"))
 
+
+;; ---------------------------------------------------------------------------
+;; Developer languages.  Enable/disable full IDE support (LSP + tree-sitter
+;; highlighting + debugging) per language.  Default: all six on.  This is read
+;; at startup -- no Nix rebuild is needed to change the subset.
+;; Valid symbols: c-cpp python ruby java typescript javascript
+;;
+;; (setq noteditor-devel-languages '(python ruby typescript))
+;; ---------------------------------------------------------------------------
+
 (provide 'noteditor-user) ;;;
 ;;; noteditor-user.el ends here
