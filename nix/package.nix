@@ -23,8 +23,8 @@
   jdk21, # JDK 21, required by jdtls and dap-java
   lldb, # provides the C/C++ DAP adapter (`lldb-dap`)
 
-  # Extra runtime tools the user can append, e.g. a browser, media player or
-  # terminal that is unfree or not in nixpkgs (brave, plexamp, alacritty).
+  # Extra runtime tools the user can append, e.g. a browser or media player
+  # that is unfree or not in nixpkgs (brave, plexamp).
   # Kept out of the default closure so the package stays free.
   extraRuntimeInputs ? [ ],
 
@@ -64,6 +64,8 @@ let
     xrandr
     flameshot
     openssh
+    pkgs.alacritty # default terminal launcher (s-x) when $TERMINAL isn't set
+    pkgs.xdg-utils # provides `xdg-open`, the default browser (s-b) and music-player (s-m) launcher
     pkgs.dunst # notification daemon the WM routes alerts through
     pkgs.xfce4-power-manager # power manager: lid, brightness keys, battery warnings
     pkgs.snixembed # bridges StatusNotifier/AppIndicator icons to XEmbed so exwm-systemtray can show them
