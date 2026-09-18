@@ -299,12 +299,11 @@ depend on whether tree-sitter remapping succeeded."
 
   (pkg/use shell-maker)
 
+  ;; The frontend modules self-register, and `copilot-chat-frontend' has a
+  ;; `:set' that requires the matching one, so setting it is all that is needed.
   (pkg/use copilot-chat
     :custom
-    (copilot-chat-frontend 'shell-maker)
-    :config
-    (require 'copilot-chat-shell-maker)
-    (push '(shell-maker . copilot-chat-shell-maker-init) copilot-chat-frontend-list))
+    (copilot-chat-frontend 'shell-maker))
 
   (pkg/use yaml-mode)
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
