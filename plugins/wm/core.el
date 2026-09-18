@@ -58,6 +58,11 @@ Left at the default it opens the freedesktop default browser via `xdg-open'.")
   (add-hook 'exwm-update-class-hook
             (lambda ()
               (exwm-workspace-rename-buffer exwm-class-name)))
+  ;; Show X window buffers from *all* workspaces in buffer lists.  By default
+  ;; EXWM hides buffers living on other workspaces (their names get a leading
+  ;; space), which makes apps seem "lost" once you switch away.  Together with
+  ;; the "s-a" binding below this lets any app be found and jumped to.
+  (setq exwm-workspace-show-all-buffers t)
   ;; Set global keybindings (populates `exwm-input-global-keys' before start).
   (wm/setup-global-keybindings)
   ;; Set up screen change hook
@@ -185,6 +190,25 @@ Assigns workspaces to monitors according to the desired configuration."
           (wm/update-workspace-monitor-plist internal-output external-outputs))
       (message "No internal output detected; cannot configure displays"))))
 
+(defun wm/reset-displays ()
+  "Force a hard off/on cycle on every external output.
+Some docks never toggle the HPD line when only the monitor cable (not the
+dock-to-laptop link) is unplugged and replugged, so xrandr keeps reporting
+the output as `connected' with its old mode and never redoes link
+training, leaving the monitor powered but signal-less.  Running `xrandr
+--auto' alone does not help either, since xrandr sees no state change to
+react to.  This reproduces the effect of physically unplugging the dock:
+force every external output off, then let `wm/update-displays' rebuild
+and re-apply the configuration from scratch."
+  (interactive)
+  (let ((external-outputs (cdr (wm/get-connected-outputs))))
+    (if (null external-outputs)
+        (message "wm/reset-displays: no external outputs connected")
+      (dolist (output external-outputs)
+        (message "wm/reset-displays: forcing %s off" output)
+        (call-process "xrandr" nil nil nil "--output" output "--off"))
+      (run-with-timer 1 nil #'wm/update-displays))))
+
 ;;; Keybindings
 
 (defun wm/launch (command)
@@ -206,6 +230,13 @@ Unlike a bare `start-process', this honours multi-word commands such as
           ([?\s-o] . other-window)
           ;; Bind "s-w" to switch workspace interactively.
           ([?\s-w] . exwm-workspace-switch)
+          ;; Bind "s-a" to pick any buffer (including X windows on other
+          ;; workspaces) and jump to the workspace it lives on.
+          ([?\s-a] . exwm-workspace-switch-to-buffer)
+          ;; Bind "s-<f5>" to force a display re-detection cycle.  Fixes docks
+          ;; that leave an external output "connected" with no signal after
+          ;; the monitor cable (not the dock link) is unplugged/replugged.
+          ([s-f5] . wm/reset-displays)
           ;; Bind "s-0" to "s-9" to switch to a workspace by its index.
           ,@(mapcar (lambda (i)
                       `(,(kbd (format "s-%d" i)) .
@@ -239,6 +270,25 @@ Unlike a bare `start-process', this honours multi-word commands such as
                        (wm/launch wm/terminal)))
           ;; Bind "s-t" to "tab-bar-mode".
           ([?\s-t] . tab-bar-mode)
+          ;; Media keys.  EXWM grabs these on the root window so they work
+          ;; regardless of the focused window.  Volume/mute go through
+          ;; PipeWire's `wpctl'; brightness through `brightnessctl' (needs the
+          ;; udev rule that makes the backlight writable by the `video' group).
+          ([XF86AudioRaiseVolume] . (lambda ()
+                                      (interactive)
+                                      (wm/launch "wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")))
+          ([XF86AudioLowerVolume] . (lambda ()
+                                      (interactive)
+                                      (wm/launch "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-")))
+          ([XF86AudioMute] . (lambda ()
+                               (interactive)
+                               (wm/launch "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")))
+          ([XF86MonBrightnessUp] . (lambda ()
+                                     (interactive)
+                                     (wm/launch "brightnessctl set 5%+")))
+          ([XF86MonBrightnessDown] . (lambda ()
+                                       (interactive)
+                                       (wm/launch "brightnessctl set 5%-")))
           )))
 
 ;;; Provide Feature
