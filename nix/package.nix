@@ -18,6 +18,11 @@
   flameshot,
   openssh,
 
+  # Language servers / debug adapters for the IDE plugin.
+  jdt-language-server, # Java LSP; provides the `jdtls` launcher
+  jdk21, # JDK 21, required by jdtls and dap-java
+  lldb, # provides the C/C++ DAP adapter (`lldb-dap`)
+
   # Extra runtime tools the user can append, e.g. a browser, media player or
   # terminal that is unfree or not in nixpkgs (brave, plexamp, alacritty).
   # Kept out of the default closure so the package stays free.
@@ -32,6 +37,12 @@ let
   # this nixpkgs provides so the package builds against either.
   silverSearcher = pkgs.silver-searcher-ng or pkgs.silver-searcher;
 
+  # `typescript-language-server' and `typescript' moved to the top level in
+  # recent nixpkgs but historically lived under `nodePackages'; accept either so
+  # the package builds against old and new revisions alike.
+  tsServer = pkgs.typescript-language-server or pkgs.nodePackages.typescript-language-server;
+  tsc = pkgs.typescript or pkgs.nodePackages.typescript;
+
   # python with the LSP server and debug adapter noteditor expects.
   pythonEnv = python3.withPackages (ps: [
     ps.python-lsp-server
@@ -45,6 +56,11 @@ let
     nodejs
     clang-tools # provides `clangd`
     pythonEnv # provides `pylsp` and debugpy
+    tsServer # provides `typescript-language-server` (TS/JS LSP)
+    tsc # provides `tsc`, the compiler the TS server shells out to
+    jdt-language-server # provides `jdtls` (Java LSP)
+    jdk21 # JDK for jdtls + dap-java
+    lldb # provides `lldb-dap` (C/C++ debug adapter)
     xrandr
     flameshot
     openssh
@@ -92,6 +108,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --set NOTEDITOR_HOME "$home" \
       --set NOTEDITOR_NIX true \
       --set NOTEDITOR_WM false \
+      --set NOTEDITOR_JDTLS_HOME "${jdt-language-server}/share/java/jdtls" \
+      --set JAVA_HOME "${jdk21}" \
       --prefix PATH : ${binPath} \
       --add-flags "$commonFlags"
 
@@ -99,6 +117,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --set NOTEDITOR_HOME "$home" \
       --set NOTEDITOR_NIX true \
       --set NOTEDITOR_WM true \
+      --set NOTEDITOR_JDTLS_HOME "${jdt-language-server}/share/java/jdtls" \
+      --set JAVA_HOME "${jdk21}" \
       --prefix PATH : ${binPath} \
       --add-flags "$commonFlags"
 
@@ -135,5 +155,17 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     license = lib.licenses.gpl3Plus;
     platforms = lib.platforms.linux;
     mainProgram = "noteditor";
+    # Not using lib.maintainers.<name> here since this package isn't (and
+    # per the project's own nixpkgs-upstream feasibility review, currently
+    # isn't planned to be) submitted to nixpkgs, so there's no entry in
+    # nixpkgs' maintainer-list.nix to reference.
+    maintainers = [
+      {
+        name = "Behnam Khanbeigi";
+        email = "yottanami@gnu.org";
+        github = "yottanami";
+        githubId = 54559;
+      }
+    ];
   };
 })
