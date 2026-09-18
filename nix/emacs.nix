@@ -64,6 +64,9 @@ emacsPkgs.emacsWithPackages (
     which-key
     company
     company-box
+    flycheck # on-the-fly linting; lsp-mode routes diagnostics through it
+    treesit-auto # auto-remap classic modes to built-in *-ts-modes, with fallback
+    web-mode # classic JSX/TSX/HTML editing
     aidermacs
     shell-maker
     copilot-chat
@@ -82,5 +85,11 @@ emacsPkgs.emacsWithPackages (
   ++ [
     # Built from source above (missing from nixpkgs).
     helm-ag
+
+    # All tree-sitter grammar `.so` files, baked in hermetically.  The
+    # `emacsWithPackages' wrapper special-cases this derivation and appends its
+    # grammar dir to `treesit-extra-load-path', so `treesit' finds them with no
+    # elisp config and nothing is downloaded at runtime.
+    epkgs.treesit-grammars.with-all-grammars
   ]
 )

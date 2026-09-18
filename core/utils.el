@@ -21,7 +21,7 @@
 ;;; Code:
 
 (defvar noteditor-home (getenv "NOTEDITOR_HOME")
-  "The pass to noteditor-home.")
+  "The path to noteditor-home.")
 
 (defvar noteditor-tmp (concat noteditor-home "/tmp"))
 
