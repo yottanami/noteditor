@@ -60,10 +60,12 @@ emacsPkgs.emacsWithPackages (
     lsp-java
     dap-mode
     hydra
+    magit # `C-x g' in the devel plugin
     edbi
     which-key
     company
     company-box
+    diff-hl # git gutter indicators; `global-diff-hl-mode' is enabled in the devel plugin
     flycheck # on-the-fly linting; lsp-mode routes diagnostics through it
     treesit-auto # auto-remap classic modes to built-in *-ts-modes, with fallback
     web-mode # classic JSX/TSX/HTML editing
