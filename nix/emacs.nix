@@ -60,6 +60,7 @@ emacsPkgs.emacsWithPackages (
     lsp-java
     dap-mode
     hydra
+    magit # `C-x g' in the devel plugin
     edbi
     which-key
     company
