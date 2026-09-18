@@ -20,54 +20,6 @@
  ;;
 ;;; Code:
 
- ;; (require 'noteditor/flags)
- ;; (require 'plugins/editor)
-;; (require 'core/utils)
-
-;; (message "Default user file loaded ...")
-;; (use-flags
-;;  (wm))
-
-
-;; ;TODO: Move this blog to a macro or something ===========
-;; (when-wm
-;;  (setq global-font-size 8)
-;;  ;; Change the resolution and monitors to your need
-;;  (defvar monitors
-;;    '(:hdmi-only
-;;      ("--output DP-3-1-5 --primary"
-;;       "--output eDP-1 --off")
-;;      :hdmi-main
-;;      ("--output DP-3-1-5 --primary --mode 2560x1080"
-;;       "--output eDP-1 --scale 0.5x0.5 --below DP-3-1-5")
-;;      :edp-only
-;;      ("--output eDP-1 --scale 0.5x0.5"
-;;       "--output HDMI-1 --off --output DP-3-1-5 --off")))
-
-;;  (require 'seq)
-;;  (defun monitor-profiles ()
-;;    (mapcar
-;;     #'car
-;;     (seq-partition monitors 2)))
-
-;;  (defun monitor (mon)
-;;    (interactive
-;;     (list (completing-read
-;;            "Monitor Profole: "
-;;            (monitor-profiles))))
-
-;;    (let ((cmd (mapconcat (lambda (x) (format "xrandr %s" x))
-;;                          (plist-get monitors (intern (format "%s" mon)))
-;;                          " && ")))
-;;      (message "Setting monitor profile: %s" cmd)
-;;      (async-shell-command cmd "*xrandr*")))
-
-;;  (monitor :hdmi-main)
-
-;;  (use-flags
-;;   (wm)))
-
-
 ;; (when (file-exists-p "~/.noteditor-user.el")
 ;;   (load "~/.noteditor-user.el"))
 
