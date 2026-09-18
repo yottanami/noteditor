@@ -23,8 +23,8 @@
   jdk21, # JDK 21, required by jdtls and dap-java
   lldb, # provides the C/C++ DAP adapter (`lldb-dap`)
 
-  # Extra runtime tools the user can append, e.g. a browser, media player or
-  # terminal that is unfree or not in nixpkgs (brave, plexamp, alacritty).
+  # Extra runtime tools the user can append, e.g. a browser or media player
+  # that is unfree or not in nixpkgs (brave, plexamp).
   # Kept out of the default closure so the package stays free.
   extraRuntimeInputs ? [ ],
 

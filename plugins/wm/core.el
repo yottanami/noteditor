@@ -1,7 +1,7 @@
 ;;; plugins/wm/core.el --- EXWM Window Manager Configuration -*- lexical-binding: t; -*-
 
-;; Author: Your Name <your.email@example.com>
-;; URL: https://your-repo-url.example.com
+;; Author: yottanami <yottanami@gnu.org>
+;; URL: https://github.com/yottanami/noteditor
 ;; License: GPL-3+
 
 ;;; Commentary:
