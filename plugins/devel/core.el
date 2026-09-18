@@ -267,11 +267,12 @@ depend on whether tree-sitter remapping succeeded."
 	   ("s-n" . 'copilot-next-completion)
 	   ("s-p" . 'copilot-previous-completion)))
 
-  ;; Enable copilot only when the package is actually present.  copilot.el is
-  ;; pulled via a `:straight' recipe that Nix strips, so on a stock build
-  ;; `copilot-mode' is void; calling it bare from `prog-mode-hook' would signal
-  ;; an error that aborts the whole hook chain -- which would stop `lsp' (and
-  ;; every other mode-hook) from ever running.  Guard it so LSP always starts.
+  ;; Enable copilot only when the package is actually present.  copilot is not
+  ;; in the Nix closure (its `copilot-language-server' dependency is unfree, so
+  ;; the flake refuses to evaluate with it), so on a stock build `copilot-mode'
+  ;; is void; calling it bare from `prog-mode-hook' would signal an error that
+  ;; aborts the whole hook chain -- which would stop `lsp' (and every other
+  ;; mode-hook) from ever running.  Guard it so LSP always starts.
   (defun noteditor--maybe-enable-copilot ()
     "Turn on `copilot-mode' iff the copilot package is available."
     (when (fboundp 'copilot-mode)

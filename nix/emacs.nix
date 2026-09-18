@@ -68,7 +68,6 @@ emacsPkgs.emacsWithPackages (
     treesit-auto # auto-remap classic modes to built-in *-ts-modes, with fallback
     web-mode # classic JSX/TSX/HTML editing
     aidermacs
-    copilot
     shell-maker
     copilot-chat
     yaml-mode
